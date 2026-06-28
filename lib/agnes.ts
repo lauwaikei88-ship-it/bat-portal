@@ -1,3 +1,5 @@
+import { createServerSupabase } from './supabase';
+
 const AGNES_BASE_URL = 'https://apihub.agnes-ai.com/v1';
 const AGNES_API_KEY  = process.env.AGNES_API_KEY!;
 
@@ -28,5 +30,26 @@ export async function generateImage(prompt: string): Promise<string> {
   const data = await res.json();
   const url  = data?.data?.[0]?.url;
   if (!url) throw new Error('Agnes returned no image URL');
-  return url;
+
+  // Instagram blocks the Agnes URL directly (OAuthException code 1). 
+  // We must download it and host it on our own Supabase bucket!
+  const imgRes = await fetch(url);
+  if (!imgRes.ok) throw new Error(`Failed to download image from Agnes`);
+  const imgBuffer = await imgRes.arrayBuffer();
+
+  const db = createServerSupabase();
+  const fileName = `${crypto.randomUUID()}.png`;
+  
+  const { data: uploadData, error } = await db
+    .storage
+    .from('images')
+    .upload(fileName, imgBuffer, {
+      contentType: 'image/png',
+      upsert: true
+    });
+
+  if (error) throw new Error(`Failed to upload to Supabase: ${error.message}`);
+
+  const { data: publicUrlData } = db.storage.from('images').getPublicUrl(fileName);
+  return publicUrlData.publicUrl;
 }
