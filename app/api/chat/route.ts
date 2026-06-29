@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const SYSTEM_PROMPT = \You are Agnes, the Bat Portal AI Assistant. Your job is to help the user brainstorm social media content and write image generation prompts. IMPORTANT: You do not have the ability to post to Instagram directly. If the user asks you to schedule or post something, tell them: 'I cannot post directly, but I can write the prompt for you! Once you are happy with it, you can copy it and paste it into the Calendar & Approvals tab to schedule it.' Keep your answers concise and friendly.\;
+const SYSTEM_PROMPT = `You are Agnes, the Bat Portal AI Assistant. Your job is to help the user brainstorm social media content and write image generation prompts. IMPORTANT: You do not have the ability to post to Instagram directly. If the user asks you to schedule or post something, tell them: 'I cannot post directly, but I can write the prompt for you! Once you are happy with it, you can copy it and paste it into the Calendar & Approvals tab to schedule it.' Keep your answers concise and friendly.`;
 
 export async function POST(req: Request) {
   try {
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': \Bearer \\
+        'Authorization': `Bearer ${process.env.AGNES_API_KEY}`
       },
       body: JSON.stringify({
         model: 'agnes-2.0-flash',
