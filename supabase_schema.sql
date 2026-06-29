@@ -1,29 +1,10 @@
--- Run this SQL in your Supabase SQL Editor to create the posts table
--- Go to: https://supabase.com → Your Project → SQL Editor → New Query
+-- Migration script for Hootsuite UI pivot
+ALTER TABLE posts ALTER COLUMN prompt DROP NOT NULL;
 
-CREATE TABLE IF NOT EXISTS posts (
-  id          BIGSERIAL PRIMARY KEY,
-  prompt      TEXT        NOT NULL,
-  caption     TEXT        NOT NULL,
-  scheduled_at TIMESTAMPTZ NOT NULL,
-  status      TEXT        NOT NULL DEFAULT 'approved',
-  image_url   TEXT,
-  ig_post_id  TEXT,
-  error_reason TEXT,
-  published_at TIMESTAMPTZ,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS post_to_ig BOOLEAN DEFAULT true;
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS post_to_fb BOOLEAN DEFAULT false;
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS media_type TEXT DEFAULT 'IMAGE';
 
--- Index for the cron job query (approved posts due for posting)
-CREATE INDEX IF NOT EXISTS idx_posts_cron
-  ON posts (status, scheduled_at)
-  WHERE status = 'approved';
+-- (Optional) If you want to support storing the generated text before approving
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS ai_prompt TEXT;
 
--- Enable Row Level Security (keep data private)
-ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
-
--- Policy: allow all operations for service role (used by cron)
-CREATE POLICY "Service role has full access"
-  ON posts FOR ALL
-  USING (true)
-  WITH CHECK (true);

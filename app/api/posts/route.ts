@@ -18,16 +18,23 @@ export async function GET() {
 // POST /api/posts — create a new scheduled post
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { prompt, caption, scheduled_at } = body;
+  const { prompt, caption, scheduled_at, media_url, media_type } = body;
 
-  if (!prompt || !caption || !scheduled_at) {
-    return NextResponse.json({ error: 'prompt, caption, and scheduled_at are required' }, { status: 400 });
+  if (!caption || !scheduled_at) {
+    return NextResponse.json({ error: 'caption and scheduled_at are required' }, { status: 400 });
   }
 
   const db = createServerSupabase();
   const { data, error } = await db
     .from('posts')
-    .insert({ prompt, caption, scheduled_at, status: 'approved' })
+    .insert({ 
+      prompt, 
+      caption, 
+      scheduled_at, 
+      media_url,
+      media_type: media_type || 'IMAGE',
+      status: 'approved' 
+    })
     .select()
     .single();
 

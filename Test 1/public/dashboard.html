@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bat Portal</title>
+  <style>
+    :root {
+      --bg-color: #1a1a1a;
+      --panel-bg: #2d2d2d;
+      --text: #e0e0e0;
+      --accent: #ffeb3b; /* Bat Yellow */
+      --accent-hover: #fbc02d;
+      --danger: #f44336;
+      --success: #4caf50;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 5px;
+      font-size: 2.5em;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #aaa;
+      margin-bottom: 30px;
+    }
+    #alertBanner {
+      background-color: var(--danger);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-weight: bold;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      background-color: var(--panel-bg);
+      color: var(--text);
+      border: 1px solid #444;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 1.1em;
+      transition: 0.2s;
+    }
+    .tab-btn.active {
+      background-color: var(--accent);
+      color: #000;
+      font-weight: bold;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .card {
+      background-color: var(--panel-bg);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+    h2 {
+      margin-top: 0;
+      color: var(--accent);
+      border-bottom: 1px solid #444;
+      padding-bottom: 10px;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 15px 0;
+      box-sizing: border-box;
+      background: #111;
+      border: 1px solid #444;
+      color: white;
+      border-radius: 4px;
+    }
+    button {
+      background-color: var(--accent);
+      color: #000;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background-color: var(--accent-hover);
+    }
+    .post-item {
+      background: #222;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      border-left: 4px solid #555;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .post-item.pending { border-left-color: var(--danger); }
+    .post-item.approved { border-left-color: var(--success); }
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+    }
+    .post-prompt {
+      white-space: pre-wrap;
+      color: #ccc;
+    }
+    .post-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-approve { background-color: var(--success); color: white; margin: 0; }
+    .btn-delete { background-color: var(--danger); color: white; margin: 0; }
+    .btn-edit { background-color: #2196F3; color: white; margin: 0; }
+    
+    /* Chat UI */
+    #chatHistory {
+      height: 400px;
+      overflow-y: auto;
+      background: #111;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chat-bubble {
+      padding: 10px 15px;
+      border-radius: 15px;
+      max-width: 80%;
+      line-height: 1.4;
+    }
+    .chat-user {
+      background: #333;
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
+    }
+    .chat-agnes {
+      background: var(--accent);
+      color: #000;
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+    }
+    .chat-input-row {
+      display: flex;
+      gap: 10px;
+    }
+    .chat-input-row input {
+      margin: 0;
+    }
+    .chat-input-row button {
+      width: 120px;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Bat Portal</h1>
+  <div class="subtitle">Social Media Command Center</div>
+
+  <div class="container">
+    <div id="alertBanner">WARNING: You have no posts scheduled for the upcoming week!</div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('calendar')">Calendar & Approvals</button>
+      <button class="tab-btn" onclick="switchTab('chat')">Bat Chat (Agnes)</button>
+    </div>
+
+    <!-- Calendar Tab -->
+    <div id="calendar" class="tab-content active">
+      
+      <!-- Staff Entry Form -->
+      <div class="card">
+        <h2>Schedule New Post (Staff View)</h2>
+        <label>Date to Post:</label>
+        <input type="date" id="postDate">
+        <label>Image Generation Prompt:</label>
+        <textarea id="postPrompt" rows="3" placeholder="e.g. A busy modern retail store..."></textarea>
+        <button onclick="addPost()">Send to Manager for Approval</button>
+      </div>
+
+      <!-- Manager Approvals -->
+      <div class="card">
+        <h2>Pending Approvals (Manager View)</h2>
+        <div id="pendingList">Loading...</div>
+      </div>
+
+      <!-- Approved Schedule -->
+      <div class="card">
+        <h2>Scheduled Posts</h2>
+        <div id="approvedList">Loading...</div>
+        <hr style="border-color: #444; margin: 20px 0;">
+        <button onclick="runPosterManually()" style="background-color: #333; color: white;">Run Autopilot Script Now (For Testing)</button>
+      </div>
+
+    </div>
+
+    <!-- Chat Tab -->
+    <div id="chat" class="tab-content">
+      <div class="card">
+        <h2>Talk to Agnes AI</h2>
+        <div id="chatHistory">
+          <div class="chat-bubble chat-agnes">Hello! I am Agnes. How can I help you plan your social media content today?</div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chatInput" placeholder="Type your message here..." onkeypress="handleChatKey(event)">
+          <button onclick="sendChatMessage()" id="chatSendBtn">Send</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Edit Modal (Hidden by default, inline for simplicity) -->
+  <div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:100;">
+    <div class="card" style="width: 500px; margin: 100px auto;">
+      <h2>Edit Post</h2>
+      <input type="hidden" id="editId">
+      <label>Date:</label>
+      <input type="date" id="editDate">
+      <label>Prompt:</label>
+      <textarea id="editPrompt" rows="4"></textarea>
+      <div class="post-actions">
+        <button onclick="saveEdit()" class="btn-approve">Save Changes</button>
+        <button onclick="closeEdit()" class="btn-delete">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
