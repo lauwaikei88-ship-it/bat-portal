@@ -108,6 +108,11 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
       // For now, we will just pass the url or a placeholder.
       const mediaUrl = activeTab === 'ai' ? previewUrl : uploadPreview; 
       
+      let mediaType = 'IMAGE';
+      if (activeTab === 'upload' && uploadedFile) {
+        mediaType = uploadedFile.type.startsWith('video/') ? 'VIDEO' : 'IMAGE';
+      }
+
       // In a real implementation we upload the file to Supabase Storage if activeTab === 'upload'
       // Since this is a UI pivot demo, we'll simulate the save
       const res = await fetch('/api/posts', {
@@ -118,7 +123,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
           caption,
           scheduled_at: new Date(scheduledAt).toISOString(),
           media_url: mediaUrl,
-          media_type: 'IMAGE'
+          media_type: mediaType
         })
       });
 

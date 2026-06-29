@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabase } from '@/lib/supabase';
-import { generateImage }        from '@/lib/agnes';
 import { postToInstagram }      from '@/lib/instagram';
 
 // Force dynamic — this route must never be statically rendered at build time
@@ -48,16 +47,19 @@ export async function GET(req: NextRequest) {
       // Step 1: Mark as processing immediately (prevents duplicate posts on next tick)
       await db.from('posts').update({ status: 'processing' }).eq('id', post.id);
 
-      // Step 2: Generate image
-      const imageUrl = await generateImage(post.prompt);
+      // Step 2: Ensure media URL exists
+      const mediaUrl = post.media_url;
+      if (!mediaUrl) {
+        throw new Error('No media_url provided for this post');
+      }
 
       // Step 3: Post to Instagram
-      const igPostId = await postToInstagram(imageUrl, post.caption);
+      const igPostId = await postToInstagram(mediaUrl, post.caption, post.media_type);
 
       // Step 4: Mark as published
       await db.from('posts').update({
         status:       'published',
-        image_url:    imageUrl,
+        image_url:    mediaUrl,
         ig_post_id:   igPostId,
         published_at: new Date().toISOString(),
       }).eq('id', post.id);

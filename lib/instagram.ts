@@ -11,16 +11,24 @@ const IG_ACCOUNT_ID    = process.env.IG_ACCOUNT_ID!;
  *   2. Poll until container status = FINISHED
  *   3. Publish the container
  */
-export async function postToInstagram(imageUrl: string, caption: string): Promise<string> {
+export async function postToInstagram(mediaUrl: string, caption: string, mediaType: string = 'IMAGE'): Promise<string> {
   // ── Step 1: Create container ──────────────────────────────────────
+  const bodyParams: any = {
+    caption:      caption,
+    access_token: META_ACCESS_TOKEN,
+  };
+
+  if (mediaType === 'VIDEO') {
+    bodyParams.video_url = mediaUrl;
+    bodyParams.media_type = 'REELS'; // Instagram uses REELS for video posts
+  } else {
+    bodyParams.image_url = mediaUrl;
+  }
+
   const containerRes = await fetch(`${META_GRAPH_URL}/${IG_ACCOUNT_ID}/media`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      image_url:    imageUrl,
-      caption:      caption,
-      access_token: META_ACCESS_TOKEN,
-    }),
+    body: new URLSearchParams(bodyParams),
   });
 
   const containerData = await containerRes.json();
