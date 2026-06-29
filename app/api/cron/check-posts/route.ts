@@ -25,11 +25,11 @@ export async function GET(req: NextRequest) {
   const db  = createServerSupabase();
   const now = new Date().toISOString();
 
-  // Find approved posts that are due
+  // Find scheduled posts that are due
   const { data: duePosts, error: fetchError } = await db
     .from('posts')
     .select('*')
-    .eq('status', 'approved')
+    .in('status', ['scheduled', 'approved'])
     .lte('scheduled_at', now);
 
   if (fetchError) {
