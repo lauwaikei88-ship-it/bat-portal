@@ -104,17 +104,27 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
 
     setIsSubmitting(true);
     try {
-      // Create post logic goes here. If uploading, we would upload to Supabase storage first.
-      // For now, we will just pass the url or a placeholder.
-      const mediaUrl = activeTab === 'ai' ? previewUrl : uploadPreview; 
-      
+      let mediaUrl = '';
       let mediaType = 'IMAGE';
+
       if (activeTab === 'upload' && uploadedFile) {
+        // Upload file to Supabase Storage via our API to get a permanent public URL
+        const formData = new FormData();
+        formData.append('file', uploadedFile);
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) throw new Error(uploadData.error || 'Upload failed');
+        mediaUrl = uploadData.url;
         mediaType = uploadedFile.type.startsWith('video/') ? 'VIDEO' : 'IMAGE';
+      } else {
+        // AI-generated image: previewUrl is already a public URL from Agnes
+        mediaUrl = previewUrl;
+        mediaType = 'IMAGE';
       }
 
-      // In a real implementation we upload the file to Supabase Storage if activeTab === 'upload'
-      // Since this is a UI pivot demo, we'll simulate the save
       const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -134,12 +144,13 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
         const data = await res.json();
         alert('Error: ' + data.error);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert('Failed to schedule post');
+      alert('Failed to schedule post: ' + e.message);
     }
     setIsSubmitting(false);
   };
+
 
   if (!isOpen) return null;
 
