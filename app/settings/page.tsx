@@ -14,6 +14,11 @@ type SocialAccount = {
 export default function SettingsPage() {
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showManual, setShowManual] = useState(false);
+  const [manualToken, setManualToken] = useState('');
+  const [manualLoading, setManualLoading] = useState(false);
+  const [manualError, setManualError] = useState('');
+  const [manualSuccess, setManualSuccess] = useState('');
 
   useEffect(() => {
     fetchAccounts();
@@ -38,6 +43,35 @@ export default function SettingsPage() {
     fetchAccounts();
   };
 
+  const handleManualConnect = async () => {
+    if (!manualToken.trim()) return;
+    setManualLoading(true);
+    setManualError('');
+    setManualSuccess('');
+
+    try {
+      const res = await fetch('/api/admin/connect-manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accessToken: manualToken.trim() }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setManualError(data.error || 'Failed to connect');
+      } else {
+        setManualSuccess(`Connected: ${data.saved.join(', ')}`);
+        setManualToken('');
+        setShowManual(false);
+        fetchAccounts();
+      }
+    } catch {
+      setManualError('Network error');
+    } finally {
+      setManualLoading(false);
+    }
+  };
+
   return (
     <div className="flex h-screen w-full bg-gray-50 overflow-hidden font-sans">
       <Sidebar />
@@ -55,13 +89,52 @@ export default function SettingsPage() {
                 <h2 className="text-xl font-semibold text-gray-900">Connected Accounts</h2>
                 <p className="text-gray-500 text-sm mt-1">Connect your Instagram and Facebook Pages to start scheduling.</p>
               </div>
-              <a
-                href="/api/auth/meta"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-xl transition-colors shadow-md shadow-blue-500/20"
-              >
-                + Connect Meta Accounts
-              </a>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowManual(!showManual)}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-xl transition-colors text-sm"
+                >
+                  🔑 Manual Token
+                </button>
+                <a
+                  href="/api/auth/meta"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-xl transition-colors shadow-md shadow-blue-500/20"
+                >
+                  + Connect Meta Accounts
+                </a>
+              </div>
             </div>
+
+            {/* Manual Token Entry */}
+            {showManual && (
+              <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-3">
+                <h3 className="font-medium text-amber-900">Manual Token Entry</h3>
+                <p className="text-sm text-amber-700">
+                  Paste your Facebook Page Access Token from the{' '}
+                  <a href="https://developers.facebook.com/tools/explorer/" target="_blank" className="underline font-medium">
+                    Graph API Explorer
+                  </a>. Make sure to select your Page and enable <code className="bg-amber-100 px-1 rounded">pages_show_list</code>,{' '}
+                  <code className="bg-amber-100 px-1 rounded">instagram_basic</code>, and{' '}
+                  <code className="bg-amber-100 px-1 rounded">instagram_content_publish</code>.
+                </p>
+                <textarea
+                  value={manualToken}
+                  onChange={(e) => setManualToken(e.target.value)}
+                  placeholder="Paste your access token here..."
+                  className="w-full p-3 border border-amber-300 rounded-lg text-sm font-mono bg-white focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  rows={3}
+                />
+                {manualError && <p className="text-red-600 text-sm">❌ {manualError}</p>}
+                {manualSuccess && <p className="text-green-600 text-sm">✅ {manualSuccess}</p>}
+                <button
+                  onClick={handleManualConnect}
+                  disabled={manualLoading || !manualToken.trim()}
+                  className="bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+                >
+                  {manualLoading ? 'Connecting...' : 'Connect with Token'}
+                </button>
+              </div>
+            )}
 
             {loading ? (
               <div className="animate-pulse flex space-x-4">
@@ -112,3 +185,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+
