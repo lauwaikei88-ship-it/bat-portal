@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { X, UploadCloud, Sparkles, Loader2, Calendar as CalendarIcon, Check } from 'lucide-react';
 import { format, addDays } from 'date-fns';
+import { useAccounts } from '@/lib/account-context';
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -12,9 +13,19 @@ interface CreatePostModalProps {
 type TabType = 'upload' | 'ai';
 
 export default function CreatePostModal({ isOpen, onClose, onPostCreated }: CreatePostModalProps) {
+  const { accounts, activeAccount } = useAccounts();
   const [activeTab, setActiveTab] = useState<TabType>('upload');
+  const [formatType, setFormatType] = useState<'FEED' | 'STORY' | 'CAROUSEL'>('FEED');
   const [caption, setCaption] = useState('');
   const [scheduledAt, setScheduledAt] = useState('');
+  const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
+  
+  // Update default selected account when modal opens
+  React.useEffect(() => {
+    if (isOpen && activeAccount && selectedAccounts.length === 0) {
+      setSelectedAccounts([activeAccount.id]);
+    }
+  }, [isOpen, activeAccount]);
   
   // AI State
   const [aiPrompt, setAiPrompt] = useState('');
@@ -23,16 +34,22 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
   const [previewUrl, setPreviewUrl] = useState('');
   
   // Upload State
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [uploadPreview, setUploadPreview] = useState('');
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [uploadPreviews, setUploadPreviews] = useState<string[]>([]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onDrop = (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      const file = acceptedFiles[0];
-      setUploadedFile(file);
-      setUploadPreview(URL.createObjectURL(file));
+      if (formatType !== 'CAROUSEL') {
+        const file = acceptedFiles[0];
+        setUploadedFiles([file]);
+        setUploadPreviews([URL.createObjectURL(file)]);
+      } else {
+        const newFiles = [...uploadedFiles, ...acceptedFiles].slice(0, 10);
+        setUploadedFiles(newFiles);
+        setUploadPreviews(newFiles.map(f => URL.createObjectURL(f)));
+      }
     }
   };
 
@@ -42,7 +59,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
       'image/*': [],
       'video/*': []
     },
-    maxFiles: 1
+    maxFiles: formatType === 'CAROUSEL' ? 10 : 1
   });
 
   const generateImage = async () => {
@@ -88,7 +105,19 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
     setIsGeneratingCaption(false);
   };
 
+  const toggleAccount = (id: string) => {
+    if (selectedAccounts.includes(id)) {
+      setSelectedAccounts(selectedAccounts.filter(a => a !== id));
+    } else {
+      setSelectedAccounts([...selectedAccounts, id]);
+    }
+  };
+
   const handleSubmit = async () => {
+    if (selectedAccounts.length === 0) {
+      alert('Please select at least one account to post to');
+      return;
+    }
     if (!scheduledAt) {
       alert('Please select a date and time');
       return;
@@ -97,53 +126,65 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
       alert('Please generate and approve an image first');
       return;
     }
-    if (activeTab === 'upload' && !uploadedFile) {
+    if (activeTab === 'upload' && uploadedFiles.length === 0) {
       alert('Please upload a file');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      let mediaUrl = '';
+      let mediaUrls: string[] = [];
       let mediaType = 'IMAGE';
 
-      if (activeTab === 'upload' && uploadedFile) {
-        // Upload file to Supabase Storage via our API to get a permanent public URL
-        const formData = new FormData();
-        formData.append('file', uploadedFile);
-        const uploadRes = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        });
-        const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadData.error || 'Upload failed');
-        mediaUrl = uploadData.url;
-        mediaType = uploadedFile.type.startsWith('video/') ? 'VIDEO' : 'IMAGE';
+      if (activeTab === 'upload' && uploadedFiles.length > 0) {
+        for (const file of uploadedFiles) {
+          const formData = new FormData();
+          formData.append('file', file);
+          const uploadRes = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          });
+          const uploadData = await uploadRes.json();
+          if (!uploadRes.ok) throw new Error(uploadData.error || 'Upload failed');
+          mediaUrls.push(uploadData.url);
+        }
+        mediaType = uploadedFiles[0].type.startsWith('video/') ? 'VIDEO' : 'IMAGE';
       } else {
-        // AI-generated image: previewUrl is already a public URL from Agnes
-        mediaUrl = previewUrl;
+        mediaUrls = [previewUrl];
         mediaType = 'IMAGE';
       }
 
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: activeTab === 'ai' ? aiPrompt : null,
-          caption,
-          scheduled_at: new Date(scheduledAt).toISOString(),
-          media_url: mediaUrl,
-          media_type: mediaType
-        })
-      });
+      // Create a post for each selected account
+      for (const accountId of selectedAccounts) {
+        const res = await fetch('/api/posts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            social_account_id: accountId,
+            prompt: activeTab === 'ai' ? aiPrompt : null,
+            caption,
+            scheduled_at: new Date(scheduledAt).toISOString(),
+            media_url: JSON.stringify(mediaUrls),
+            media_type: mediaType,
+            format_type: formatType
+          })
+        });
 
-      if (res.ok) {
-        onPostCreated();
-        onClose();
-      } else {
-        const data = await res.json();
-        alert('Error: ' + data.error);
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error);
+        }
       }
+
+      onPostCreated();
+      onClose();
+      // Reset form
+      setCaption('');
+      setScheduledAt('');
+      setAiPrompt('');
+      setPreviewUrl('');
+      setUploadedFiles([]);
+      setUploadPreviews([]);
     } catch (e: any) {
       console.error(e);
       alert('Failed to schedule post: ' + e.message);
@@ -180,32 +221,104 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
         </div>
 
         <div className="p-6 space-y-6 flex-1 overflow-y-auto">
-          {activeTab === 'upload' ? (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Media</label>
-              {uploadPreview ? (
-                <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 aspect-video flex items-center justify-center">
-                  <img src={uploadPreview} alt="Preview" className="max-h-full object-contain" />
-                  <button 
-                    onClick={() => { setUploadedFile(null); setUploadPreview(''); }}
-                    className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              ) : (
-                <div 
-                  {...getRootProps()} 
-                  className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'}`}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Post To</label>
+            <div className="flex flex-wrap gap-2">
+              {accounts.map(acc => (
+                <button
+                  key={acc.id}
+                  onClick={() => toggleAccount(acc.id)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${selectedAccounts.includes(acc.id) ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
                 >
-                  <input {...getInputProps()} />
-                  <UploadCloud className="mx-auto h-12 w-12 text-gray-400 mb-3" />
-                  <p className="text-sm text-gray-600">
-                    <span className="font-semibold text-blue-600">Click to upload</span> or drag and drop
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">PNG, JPG, MP4 up to 50MB</p>
+                  <div className={`w-4 h-4 rounded-sm border flex items-center justify-center ${selectedAccounts.includes(acc.id) ? 'bg-blue-600 border-blue-600' : 'border-gray-300'}`}>
+                    {selectedAccounts.includes(acc.id) && <Check size={12} className="text-white" />}
+                  </div>
+                  {acc.profile_picture_url ? (
+                    <img src={acc.profile_picture_url} className="w-5 h-5 rounded-full" />
+                  ) : (
+                    <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-bold">
+                      {acc.account_name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="text-sm font-medium">{acc.account_name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {activeTab === 'upload' ? (
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Format</label>
+                  <select 
+                    value={formatType}
+                    onChange={(e: any) => {
+                      setFormatType(e.target.value);
+                      if (e.target.value !== 'CAROUSEL' && uploadedFiles.length > 1) {
+                        setUploadedFiles([uploadedFiles[0]]);
+                        setUploadPreviews([uploadPreviews[0]]);
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow bg-white"
+                  >
+                    <option value="FEED">Post / Reel</option>
+                    <option value="STORY">Story</option>
+                    <option value="CAROUSEL">Carousel</option>
+                  </select>
                 </div>
-              )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Media</label>
+                {uploadPreviews.length > 0 ? (
+                  <div className="space-y-2">
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {uploadPreviews.map((preview, idx) => (
+                        <div key={idx} className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 h-32 w-32 flex-shrink-0 flex items-center justify-center">
+                          <img src={preview} alt="Preview" className="max-h-full object-contain" />
+                          <button 
+                            onClick={() => { 
+                              const newFiles = [...uploadedFiles];
+                              const newPreviews = [...uploadPreviews];
+                              newFiles.splice(idx, 1);
+                              newPreviews.splice(idx, 1);
+                              setUploadedFiles(newFiles); 
+                              setUploadPreviews(newPreviews); 
+                            }}
+                            className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    {formatType === 'CAROUSEL' && uploadPreviews.length < 10 && (
+                      <div 
+                        {...getRootProps()} 
+                        className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'}`}
+                      >
+                        <input {...getInputProps()} />
+                        <p className="text-sm text-gray-600">
+                          <span className="font-semibold text-blue-600">Click to add more</span> or drag and drop
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div 
+                    {...getRootProps()} 
+                    className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'}`}
+                  >
+                    <input {...getInputProps()} />
+                    <UploadCloud className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+                    <p className="text-sm text-gray-600">
+                      <span className="font-semibold text-blue-600">Click to upload</span> or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">PNG, JPG, MP4 up to 50MB</p>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -293,7 +406,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting || (activeTab === 'ai' && !previewUrl) || (activeTab === 'upload' && !uploadPreview)}
+            disabled={isSubmitting || (activeTab === 'ai' && !previewUrl) || (activeTab === 'upload' && uploadedFiles.length === 0)}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors shadow-sm"
           >
             {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}

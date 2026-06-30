@@ -1,5 +1,6 @@
 import React from 'react';
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
+import AccountSwitcher from './AccountSwitcher';
 
 interface Post {
   id: number;
@@ -35,8 +36,13 @@ export default function WeeklyCalendar({ posts, onNewPost }: WeeklyCalendarProps
   return (
     <div className="flex-1 h-full flex flex-col bg-white overflow-hidden">
       {/* Header */}
-      <div className="h-16 border-b border-gray-100 flex items-center justify-between px-6 shrink-0">
-        <h1 className="text-xl font-semibold text-gray-800">Planner</h1>
+      <div className="h-20 border-b border-gray-100 flex items-center justify-between px-6 shrink-0 gap-4">
+        <div className="flex items-center gap-6">
+          <h1 className="text-xl font-semibold text-gray-800">Planner</h1>
+          <div className="w-64">
+            <AccountSwitcher />
+          </div>
+        </div>
         <div className="flex items-center gap-3">
           <div className="text-sm font-medium text-gray-500 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
             {format(weekStart, 'MMM d')} - {format(addDays(weekStart, 6), 'MMM d, yyyy')}
