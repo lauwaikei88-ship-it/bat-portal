@@ -62,7 +62,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 py-20 md:py-28 flex flex-col md:flex-row items-center gap-12">
 
           {/* Left copy */}
-          <div className="flex-1 text-left">
+          <div className="flex-1 text-left relative z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-[#D9DFE1] bg-white text-[#41606B]">
               Beta Program · 50 spots
             </div>
@@ -85,45 +85,82 @@ export default function LandingPage() {
 
             <div className="flex flex-col sm:flex-row gap-3">
               <Link href="/signup"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-bold text-white rounded-lg transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-bold text-white rounded-lg transition-colors shadow-sm"
                 style={{ backgroundColor: '#012B3A' }}>
                 Get started free
                 <ArrowRight size={16} />
               </Link>
               <Link href="/login"
-                className="inline-flex items-center justify-center px-7 py-3.5 text-sm font-bold text-[#012B3A] rounded-lg border border-[#D9DFE1] bg-white hover:bg-[#F2F4F5] transition-colors">
+                className="inline-flex items-center justify-center px-7 py-3.5 text-sm font-bold text-[#012B3A] rounded-lg border border-[#D9DFE1] bg-white hover:bg-[#F2F4F5] transition-colors shadow-sm">
                 Log in
               </Link>
             </div>
           </div>
 
-          {/* Right: live counter */}
-          <div className="flex-shrink-0 w-full md:w-72">
-            <div className="bg-white border border-[#D9DFE1] rounded-2xl p-7 shadow-sm">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#80959C] mb-1">Beta Spots Taken</p>
-              <div className="flex items-baseline gap-2 mb-3">
-                <span className="text-5xl font-bold text-[#012B3A]">
-                  {testerCount !== null ? testerCount : '—'}
-                </span>
-                <span className="text-xl text-[#BFCACE] font-medium">/ 50</span>
+          {/* Right: Mockup Composition & Live Counter */}
+          <div className="flex-1 w-full relative">
+            {/* Background decoration */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#E6EFEF] to-transparent rounded-3xl -rotate-3 scale-105 opacity-50 z-0"></div>
+
+            <div className="relative z-10 grid gap-4 grid-cols-1 sm:grid-cols-2">
+              
+              {/* Dashboard snippet mockup */}
+              <div className="bg-white border border-[#D9DFE1] rounded-2xl p-5 shadow-sm transform hover:-translate-y-1 transition-transform">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded bg-[#F2F4F5] flex items-center justify-center">
+                      <CalendarDays size={12} className="text-[#80959C]" />
+                    </div>
+                    <span className="text-xs font-bold text-[#012B3A]">This Week</span>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#007978] bg-[#E6EFEF] px-2 py-1 rounded">Active</span>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="h-14 rounded-lg border border-[#D9DFE1] p-2 flex gap-3 items-center">
+                    <div className="w-1.5 h-full rounded-full bg-[#E1306C]"></div>
+                    <div className="flex-1">
+                      <div className="h-2 w-16 bg-[#D9DFE1] rounded mb-2"></div>
+                      <div className="h-2 w-24 bg-[#F2F4F5] rounded"></div>
+                    </div>
+                  </div>
+                  <div className="h-14 rounded-lg border border-[#D9DFE1] p-2 flex gap-3 items-center">
+                    <div className="w-1.5 h-full rounded-full bg-[#1877F2]"></div>
+                    <div className="flex-1">
+                      <div className="h-2 w-20 bg-[#D9DFE1] rounded mb-2"></div>
+                      <div className="h-2 w-16 bg-[#F2F4F5] rounded"></div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="w-full h-2 rounded-full bg-[#F2F4F5] mb-3 overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-700"
-                  style={{ width: `${progressPct}%`, backgroundColor: '#007978' }}
-                />
-              </div>
-
-              {spotsLeft !== null && (
-                <p className="text-sm font-semibold text-[#007978] flex items-center gap-2">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: '#007978' }} />
-                    <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: '#007978' }} />
+              {/* Live Counter Card */}
+              <div className="bg-white border border-[#D9DFE1] rounded-2xl p-6 shadow-sm flex flex-col justify-center sm:translate-y-8">
+                <p className="text-xs font-bold uppercase tracking-widest text-[#80959C] mb-2">Beta Spots</p>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-5xl font-bold text-[#012B3A] tracking-tight">
+                    {testerCount !== null ? testerCount : '—'}
                   </span>
-                  {spotsLeft} spots remaining
-                </p>
-              )}
+                  <span className="text-xl text-[#BFCACE] font-medium">/ 50</span>
+                </div>
+
+                <div className="w-full h-2 rounded-full bg-[#F2F4F5] mb-4 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{ width: `${progressPct}%`, backgroundColor: '#007978' }}
+                  />
+                </div>
+
+                {spotsLeft !== null && (
+                  <p className="text-sm font-semibold text-[#007978] flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: '#007978' }} />
+                      <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: '#007978' }} />
+                    </span>
+                    {spotsLeft} remaining
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
