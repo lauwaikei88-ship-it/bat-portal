@@ -31,7 +31,8 @@ export async function GET(request: Request) {
 
   const appId = process.env.NEXT_PUBLIC_META_APP_ID;
   const appSecret = process.env.META_APP_SECRET;
-  const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || new URL(request.url).origin}/api/auth/meta/callback`;
+  // Must match EXACTLY the redirect_uri used in /api/auth/meta (the OAuth start route)
+  const redirectUri = 'https://post2post.vercel.app/api/auth/meta/callback';
 
   console.log('[Meta Callback] Using redirectUri:', redirectUri);
 
