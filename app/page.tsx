@@ -17,11 +17,6 @@ const FbIcon = () => (
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
   </svg>
 );
-const XIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-  </svg>
-);
 
 export default function LandingPage() {
   const [testerCount, setTesterCount] = useState<number | null>(null);
@@ -81,6 +76,13 @@ export default function LandingPage() {
               Schedule your content across multiple social accounts — all from one simple dashboard.
             </p>
 
+            {/* Platforms row */}
+            <div className="flex items-center gap-4 mb-8 text-[#80959C]">
+              <span className="text-xs font-bold uppercase tracking-widest">Works with</span>
+              <IgIcon />
+              <FbIcon />
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-3">
               <Link href="/signup"
                 className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-bold text-white rounded-lg transition-colors"
@@ -93,8 +95,6 @@ export default function LandingPage() {
                 Log in
               </Link>
             </div>
-
-            <p className="mt-4 text-sm text-[#80959C]">No credit card required.</p>
           </div>
 
           {/* Right: live counter */}
@@ -108,7 +108,6 @@ export default function LandingPage() {
                 <span className="text-xl text-[#BFCACE] font-medium">/ 50</span>
               </div>
 
-              {/* Progress bar */}
               <div className="w-full h-2 rounded-full bg-[#F2F4F5] mb-3 overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-700"
@@ -131,87 +130,138 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── PLATFORMS ── */}
-      <section className="border-b border-[#D9DFE1] py-6">
-        <div className="max-w-6xl mx-auto px-6 flex items-center gap-2 text-[#80959C]">
-          <span className="text-xs font-bold uppercase tracking-widest mr-4">Works with</span>
-          <div className="flex items-center gap-5">
-            <IgIcon />
-            <FbIcon />
-            <XIcon />
-          </div>
-          <span className="text-xs text-[#BFCACE] ml-2">and more</span>
-        </div>
-      </section>
-
       {/* ── HOW IT WORKS ── */}
-      <section className="py-20 border-b border-[#D9DFE1]">
+      <section className="py-24 border-b border-[#D9DFE1]">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-[#012B3A] mb-12">How it works</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: <Share2 size={22} />, step: '1', title: 'Connect your accounts', desc: 'Link your social profiles in seconds. No technical setup needed.' },
-              { icon: <CalendarDays size={22} />, step: '2', title: 'Plan your content', desc: 'Write your posts and set the exact date and time for each one.' },
-              { icon: <Clock size={22} />, step: '3', title: 'Posts go live automatically', desc: 'Walk away. Your posts publish on schedule, every time.' },
-            ].map(item => (
-              <div key={item.step} className="flex flex-col gap-4">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                  style={{ backgroundColor: '#007978' }}>
-                  {item.step}
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-[#012B3A] mb-1">{item.title}</h3>
-                  <p className="text-sm text-[#41606B] leading-relaxed">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+          <h2 className="text-2xl md:text-3xl font-bold text-[#012B3A] mb-4">How it works</h2>
+          <p className="text-[#41606B] mb-16 max-w-xl">Three simple steps — from setup to your first scheduled post in minutes.</p>
 
-      {/* ── FEATURES ── */}
-      <section className="py-20 bg-[#F7F9F9] border-b border-[#D9DFE1]">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-[#012B3A] mb-12">What's included</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              { icon: <CalendarDays size={20} />, title: 'Content calendar', desc: 'See all your scheduled posts in a clear weekly or monthly view.' },
-              { icon: <Share2 size={20} />, title: 'Multi-platform posting', desc: 'Post to multiple accounts from one place — no switching tabs.' },
-              { icon: <BarChart2 size={20} />, title: 'Post analytics', desc: 'See how each post performs once it goes live.' },
-              { icon: <Clock size={20} />, title: 'Scheduled publishing', desc: 'Set your post time and let the app handle the rest.' },
-            ].map(f => (
-              <div key={f.title} className="flex gap-4 bg-white border border-[#D9DFE1] rounded-xl p-6">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-[#007978]"
-                  style={{ backgroundColor: '#DFFFDE' }}>
-                  {f.icon}
-                </div>
-                <div>
-                  <h3 className="font-bold text-[#012B3A] mb-1 text-sm">{f.title}</h3>
-                  <p className="text-sm text-[#41606B] leading-relaxed">{f.desc}</p>
+          {/* Step 1 */}
+          <div className="flex flex-col md:flex-row items-center gap-10 mb-20">
+            <div className="flex-1">
+              <div className="inline-flex w-9 h-9 rounded-lg items-center justify-center text-white text-sm font-bold mb-5" style={{ backgroundColor: '#007978' }}>1</div>
+              <h3 className="text-xl font-bold text-[#012B3A] mb-3">Connect your social accounts</h3>
+              <p className="text-[#41606B] leading-relaxed max-w-sm">
+                Link your Instagram and Facebook pages in seconds. No complicated setup — just authorise and you're ready.
+              </p>
+            </div>
+            {/* Mockup card */}
+            <div className="flex-1 w-full">
+              <div className="bg-[#F7F9F9] border border-[#D9DFE1] rounded-2xl p-6">
+                <p className="text-xs font-bold uppercase tracking-widest text-[#80959C] mb-4">Connected accounts</p>
+                <div className="space-y-3">
+                  {[
+                    { name: 'Instagram', handle: '@yourbrand', color: '#E1306C' },
+                    { name: 'Facebook', handle: 'Your Page', color: '#1877F2' },
+                  ].map(acc => (
+                    <div key={acc.name} className="flex items-center gap-3 bg-white border border-[#D9DFE1] rounded-xl px-4 py-3">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                        style={{ backgroundColor: acc.color }}>
+                        {acc.name[0]}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-[#012B3A]">{acc.name}</p>
+                        <p className="text-xs text-[#80959C]">{acc.handle}</p>
+                      </div>
+                      <div className="ml-auto flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#007978' }} />
+                        <span className="text-xs text-[#007978] font-semibold">Connected</span>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="flex items-center gap-3 border border-dashed border-[#D9DFE1] rounded-xl px-4 py-3 text-[#BFCACE] text-sm">
+                    + Add another account
+                  </div>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
+
+          {/* Step 2 */}
+          <div className="flex flex-col md:flex-row-reverse items-center gap-10 mb-20">
+            <div className="flex-1">
+              <div className="inline-flex w-9 h-9 rounded-lg items-center justify-center text-white text-sm font-bold mb-5" style={{ backgroundColor: '#007978' }}>2</div>
+              <h3 className="text-xl font-bold text-[#012B3A] mb-3">Write your post and pick a time</h3>
+              <p className="text-[#41606B] leading-relaxed max-w-sm">
+                Type your caption, select which accounts to post to, and choose when it should go live. That's it.
+              </p>
+            </div>
+            {/* Mockup card */}
+            <div className="flex-1 w-full">
+              <div className="bg-[#F7F9F9] border border-[#D9DFE1] rounded-2xl p-6">
+                <p className="text-xs font-bold uppercase tracking-widest text-[#80959C] mb-4">New post</p>
+                <div className="bg-white border border-[#D9DFE1] rounded-xl p-4 mb-3 text-sm text-[#41606B] min-h-[72px]">
+                  Excited to share our latest update with you all! 🚀 Stay tuned for more.
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 border border-[#D9DFE1] rounded-lg bg-white text-xs font-semibold text-[#012B3A]">
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#E1306C' }} />
+                    Instagram
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 border border-[#D9DFE1] rounded-lg bg-white text-xs font-semibold text-[#012B3A]">
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#1877F2' }} />
+                    Facebook
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-[#80959C]">📅 Tomorrow, 9:00 AM</div>
+                  <div className="px-4 py-2 text-xs font-bold text-white rounded-lg" style={{ backgroundColor: '#007978' }}>Schedule</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="flex flex-col md:flex-row items-center gap-10">
+            <div className="flex-1">
+              <div className="inline-flex w-9 h-9 rounded-lg items-center justify-center text-white text-sm font-bold mb-5" style={{ backgroundColor: '#007978' }}>3</div>
+              <h3 className="text-xl font-bold text-[#012B3A] mb-3">Your post goes live automatically</h3>
+              <p className="text-[#41606B] leading-relaxed max-w-sm">
+                Sit back. Post 2 Post publishes your content on time — every time. No reminders, no manual posting.
+              </p>
+            </div>
+            {/* Mockup card */}
+            <div className="flex-1 w-full">
+              <div className="bg-[#F7F9F9] border border-[#D9DFE1] rounded-2xl p-6">
+                <p className="text-xs font-bold uppercase tracking-widest text-[#80959C] mb-4">This week</p>
+                <div className="grid grid-cols-7 gap-1 mb-2">
+                  {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+                    <div key={i} className="text-center text-xs font-bold text-[#80959C] py-1">{d}</div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                  {[null, null, null, null, null, null, null].map((_, i) => (
+                    <div key={i} className={`rounded-lg h-10 flex items-center justify-center text-xs font-semibold ${i === 0 || i === 2 || i === 4 ? 'text-white' : 'bg-[#F2F4F5] text-[#BFCACE]'}`}
+                      style={i === 0 || i === 2 || i === 4 ? { backgroundColor: '#007978' } : {}}>
+                      {i === 0 || i === 2 || i === 4 ? '✓' : ''}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-[#007978] font-semibold mt-4">3 posts published this week</p>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
       {/* ── PRICING ── */}
-      <section className="py-20 border-b border-[#D9DFE1]">
+      <section className="py-24 bg-[#F7F9F9] border-b border-[#D9DFE1]">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-2xl md:text-3xl font-bold text-[#012B3A] mb-3">Simple pricing</h2>
           <p className="text-[#41606B] mb-12">Start free. Upgrade when you need more.</p>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-3xl">
+          <div className="grid md:grid-cols-3 gap-6">
 
             {/* Free */}
             <div className="border border-[#D9DFE1] rounded-xl p-8 bg-white flex flex-col">
               <div className="text-xs font-bold uppercase tracking-widest text-[#80959C] mb-3">Beta Access</div>
               <div className="text-4xl font-bold text-[#012B3A] mb-1">Free</div>
-              <p className="text-sm text-[#41606B] mb-7">Everything you need to get started.</p>
+              <p className="text-sm text-[#41606B] mb-7">Try it out during the beta.</p>
 
               <ul className="space-y-3 mb-8 flex-1">
                 {[
-                  'Manage up to 3 social accounts',
+                  '3 social accounts',
                   'Content calendar',
                   'Multi-platform scheduling',
                   'Post analytics',
@@ -224,21 +274,26 @@ export default function LandingPage() {
               </ul>
 
               <Link href="/signup"
-                className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-white rounded-lg transition-colors"
-                style={{ backgroundColor: '#012B3A' }}>
+                className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-[#012B3A] rounded-lg border border-[#D9DFE1] hover:bg-[#F2F4F5] transition-colors">
                 Get started free
               </Link>
             </div>
 
-            {/* Pro */}
-            <div className="border-2 rounded-xl p-8 bg-[#012B3A] text-white flex flex-col" style={{ borderColor: '#012B3A' }}>
+            {/* Yearly — highlighted */}
+            <div className="rounded-xl p-8 bg-[#012B3A] text-white flex flex-col relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold text-white" style={{ backgroundColor: '#007978' }}>
+                Most popular
+              </div>
               <div className="text-xs font-bold uppercase tracking-widest text-[#BFCACE] mb-3">Pro — Yearly</div>
-              <div className="text-4xl font-bold text-white mb-1">Custom</div>
-              <p className="text-sm text-[#80959C] mb-7">Need more accounts? Email us.</p>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-4xl font-bold text-white">$30</span>
+                <span className="text-[#80959C] text-sm font-medium">/ year</span>
+              </div>
+              <p className="text-sm text-[#80959C] mb-7">Best value for serious creators.</p>
 
               <ul className="space-y-3 mb-8 flex-1">
                 {[
-                  'Manage up to 10 social accounts',
+                  '10 social accounts',
                   'Everything in Beta Access',
                   'Priority email support',
                 ].map(f => (
@@ -249,18 +304,45 @@ export default function LandingPage() {
                 ))}
               </ul>
 
-              <a href="mailto:hello@post2post.app"
-                className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold rounded-lg border border-white/20 hover:bg-white/10 transition-colors">
-                <Mail size={16} />
+              <a href="mailto:hello@post2post.app?subject=Pro Plan"
+                className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-[#012B3A] bg-white rounded-lg hover:bg-[#F2F4F5] transition-colors">
+                <Mail size={15} />
                 Email us to upgrade
               </a>
             </div>
+
+            {/* Agency */}
+            <div className="border border-[#D9DFE1] rounded-xl p-8 bg-white flex flex-col">
+              <div className="text-xs font-bold uppercase tracking-widest text-[#80959C] mb-3">Agency</div>
+              <div className="text-4xl font-bold text-[#012B3A] mb-1">Custom</div>
+              <p className="text-sm text-[#41606B] mb-7">Need more than 10 accounts?</p>
+
+              <ul className="space-y-3 mb-8 flex-1">
+                {[
+                  'Unlimited social accounts',
+                  'Everything in Pro',
+                  'Custom setup support',
+                ].map(f => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-[#012B3A] font-medium">
+                    <CheckCircle2 size={17} className="flex-shrink-0 mt-0.5" style={{ color: '#007978' }} />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <a href="mailto:hello@post2post.app?subject=Agency Plan"
+                className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-[#012B3A] rounded-lg border border-[#D9DFE1] hover:bg-[#F2F4F5] transition-colors">
+                <Mail size={15} />
+                Email us
+              </a>
+            </div>
+
           </div>
         </div>
       </section>
 
       {/* ── FINAL CTA ── */}
-      <section className="py-20 bg-[#F7F9F9]">
+      <section className="py-20">
         <div className="max-w-2xl mx-auto px-6 text-center">
           <h2 className="text-2xl md:text-4xl font-bold text-[#012B3A] mb-4">
             Ready to get started?
@@ -275,7 +357,6 @@ export default function LandingPage() {
             Sign up free
             <ArrowRight size={16} />
           </Link>
-          <p className="mt-4 text-sm text-[#80959C]">No credit card required.</p>
         </div>
       </section>
 
