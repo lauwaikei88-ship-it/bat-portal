@@ -57,6 +57,9 @@ export async function GET(request: Request) {
     console.log('[Meta Callback] Long-lived token response:', JSON.stringify(longLivedData));
 
     const userAccessToken = longLivedData.access_token || shortLivedToken;
+    // Calculate expiry — long-lived tokens last ~60 days (5,184,000 seconds)
+    const tokenExpiresIn: number = longLivedData.expires_in ?? 5184000;
+    const tokenExpiresAt = new Date(Date.now() + tokenExpiresIn * 1000).toISOString();
 
     // 3. Get identity of this token
     const meRes = await fetch(`https://graph.facebook.com/v21.0/me?fields=id,name&access_token=${userAccessToken}`);
@@ -87,6 +90,7 @@ export async function GET(request: Request) {
           account_name: pageInfoData.name,
           profile_picture_url: pageInfoData.picture?.data?.url,
           access_token: userAccessToken,
+          token_expires_at: tokenExpiresAt,
         }, { onConflict: 'user_id,platform,platform_account_id' });
 
         if (pageInfoData.instagram_business_account) {
@@ -99,6 +103,7 @@ export async function GET(request: Request) {
             account_username: ig.username,
             profile_picture_url: ig.profile_picture_url,
             access_token: userAccessToken,
+            token_expires_at: tokenExpiresAt,
           }, { onConflict: 'user_id,platform,platform_account_id' });
         }
 
@@ -119,6 +124,7 @@ export async function GET(request: Request) {
         account_name: page.name,
         profile_picture_url: page.picture?.data?.url,
         access_token: page.access_token,
+        token_expires_at: tokenExpiresAt,
       }, { onConflict: 'user_id,platform,platform_account_id' });
 
       if (page.instagram_business_account) {
@@ -133,6 +139,7 @@ export async function GET(request: Request) {
           account_username: ig.username,
           profile_picture_url: ig.profile_picture_url,
           access_token: page.access_token,
+          token_expires_at: tokenExpiresAt,
         }, { onConflict: 'user_id,platform,platform_account_id' });
       }
     }
