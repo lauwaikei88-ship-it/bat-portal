@@ -10,7 +10,8 @@ export async function GET(request: Request) {
   }
 
   const appId = process.env.NEXT_PUBLIC_META_APP_ID;
-  const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || new URL(request.url).origin}/api/auth/meta/callback`;
+  // Hard-coded to match exactly what is registered in Meta App Dashboard → Facebook Login → Valid OAuth Redirect URIs
+  const redirectUri = 'https://post2post.vercel.app/api/auth/meta/callback';
   const state = user.id;
   const scope = [
     'pages_show_list',
