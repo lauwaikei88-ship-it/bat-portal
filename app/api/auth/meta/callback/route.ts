@@ -83,7 +83,7 @@ export async function GET(request: Request) {
 
       if (pageInfoData.id && pageInfoData.name) {
         // Save as page directly
-        await supabase.from('social_accounts').upsert({
+        const { error: upsertErr1 } = await supabase.from('social_accounts').upsert({
           user_id: user.id,
           platform: 'facebook_page',
           platform_account_id: pageInfoData.id,
@@ -92,10 +92,12 @@ export async function GET(request: Request) {
           access_token: userAccessToken,
           token_expires_at: tokenExpiresAt,
         }, { onConflict: 'user_id,platform,platform_account_id' });
+        
+        if (upsertErr1) throw new Error(`Upsert error: ${upsertErr1.message}`);
 
         if (pageInfoData.instagram_business_account) {
           const ig = pageInfoData.instagram_business_account;
-          await supabase.from('social_accounts').upsert({
+          const { error: upsertErr2 } = await supabase.from('social_accounts').upsert({
             user_id: user.id,
             platform: 'instagram',
             platform_account_id: ig.id,
@@ -105,6 +107,8 @@ export async function GET(request: Request) {
             access_token: userAccessToken,
             token_expires_at: tokenExpiresAt,
           }, { onConflict: 'user_id,platform,platform_account_id' });
+          
+          if (upsertErr2) throw new Error(`Upsert error: ${upsertErr2.message}`);
         }
 
         return NextResponse.redirect(new URL('/settings?success=accounts_connected', request.url));
@@ -117,7 +121,7 @@ export async function GET(request: Request) {
     for (const page of pagesData.data) {
       console.log('[Meta Callback] Saving page:', page.name, page.id);
 
-      await supabase.from('social_accounts').upsert({
+      const { error: upsertErr3 } = await supabase.from('social_accounts').upsert({
         user_id: user.id,
         platform: 'facebook_page',
         platform_account_id: page.id,
@@ -126,12 +130,14 @@ export async function GET(request: Request) {
         access_token: page.access_token,
         token_expires_at: tokenExpiresAt,
       }, { onConflict: 'user_id,platform,platform_account_id' });
+      
+      if (upsertErr3) throw new Error(`Upsert error: ${upsertErr3.message}`);
 
       if (page.instagram_business_account) {
         const ig = page.instagram_business_account;
         console.log('[Meta Callback] Saving IG:', ig.username, ig.id);
 
-        await supabase.from('social_accounts').upsert({
+        const { error: upsertErr4 } = await supabase.from('social_accounts').upsert({
           user_id: user.id,
           platform: 'instagram',
           platform_account_id: ig.id,
@@ -141,6 +147,8 @@ export async function GET(request: Request) {
           access_token: page.access_token,
           token_expires_at: tokenExpiresAt,
         }, { onConflict: 'user_id,platform,platform_account_id' });
+        
+        if (upsertErr4) throw new Error(`Upsert error: ${upsertErr4.message}`);
       }
     }
 
@@ -148,6 +156,7 @@ export async function GET(request: Request) {
 
   } catch (error) {
     console.error('[Meta Callback] Exception:', error);
-    return NextResponse.redirect(new URL('/settings?error=meta_processing_failed', request.url));
+    const errorMessage = error instanceof Error ? error.message : 'meta_processing_failed';
+    return NextResponse.redirect(new URL(`/settings?error=${encodeURIComponent(errorMessage)}`, request.url));
   }
 }
