@@ -246,22 +246,34 @@ export default function Dashboard() {
         const ext = f.name.split('.').pop() || 'jpg';
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
         
-        const presignRes = await fetch('/api/upload/presign', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fileName })
-        });
-        const presignData = await presignRes.json();
+        let presignRes;
+        let presignData;
+        try {
+          presignRes = await fetch('/api/upload/presign', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileName })
+          });
+        } catch (err: any) {
+          throw new Error(`presign API network error: ${err.message}`);
+        }
+        
+        presignData = await presignRes.json();
         if (!presignRes.ok) throw new Error(presignData.error || 'Failed to get upload URL');
 
         // Use direct fetch to the signedUrl with PUT method to bypass any supabase-js issues
-        const uploadRes = await fetch(presignData.signedUrl, {
-          method: 'PUT',
-          body: f,
-          headers: {
-            'Content-Type': f.type || 'application/octet-stream'
-          }
-        });
+        let uploadRes;
+        try {
+          uploadRes = await fetch(presignData.signedUrl, {
+            method: 'PUT',
+            body: f,
+            headers: {
+              'Content-Type': f.type || 'application/octet-stream'
+            }
+          });
+        } catch (err: any) {
+          throw new Error(`Storage upload network error: ${err.message}`);
+        }
 
         if (!uploadRes.ok) {
           const errText = await uploadRes.text().catch(() => '');
@@ -285,24 +297,29 @@ export default function Dashboard() {
         formatType = 'CAROUSEL';
       }
       
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          social_account_id: activeAccount.id,
-          caption,
-          scheduled_at: scheduledAt,
-          media_url: JSON.stringify(publicUrls),
-          media_type: mediaType,
-          format_type: formatType,
-          post_to_ig: postToIg,
-          post_to_fb: postToFb
-        })
-      });
+      let res;
+      try {
+        res = await fetch('/api/posts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            social_account_id: activeAccount.id,
+            caption,
+            scheduled_at: scheduledAt,
+            media_url: JSON.stringify(publicUrls),
+            media_type: mediaType,
+            format_type: formatType,
+            post_to_ig: postToIg,
+            post_to_fb: postToFb
+          })
+        });
+      } catch (err: any) {
+        throw new Error(`Posts API network error: ${err.message}`);
+      }
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || data.error);
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || data.error || `HTTP ${res.status}`);
       }
 
       alert("Post scheduled successfully!");
