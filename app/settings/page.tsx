@@ -2,9 +2,8 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
-import { createClient } from '@/lib/supabase-browser';
-import Link from 'next/link';
 import { User, CreditCard, Link2, Shield, Plus, ExternalLink, Zap, LogOut, CheckCircle2, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
 
 type SocialAccount = {
   id: string;
@@ -72,23 +71,23 @@ export default function SettingsPage() {
 
   const fetchAccounts = async () => {
     setLoading(true);
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from('social_accounts')
-      .select('id, platform, account_name, profile_picture_url, created_at')
-      .order('created_at', { ascending: false });
-
-    if (!error && data) {
-      setAccounts(data as SocialAccount[]);
-    } else if (error) {
-      console.error('[Settings] fetchAccounts error:', error);
+    try {
+      // Use the server-side API route to avoid browser client session hydration timing issues.
+      // The browser Supabase client may not have the auth cookie available on first mount,
+      // causing RLS to return empty even when the user is logged in.
+      const res = await fetch('/api/accounts');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      setAccounts(json.accounts ?? []);
+    } catch (e) {
+      console.error('[Settings] fetchAccounts error:', e);
     }
     setLoading(false);
   };
 
   const handleDisconnect = async (id: string) => {
-    const supabase = createClient();
-    await supabase.from('social_accounts').delete().eq('id', id);
+    // Use the server-side route for delete too, to avoid session issues
+    await fetch(`/api/accounts?id=${id}`, { method: 'DELETE' });
     fetchAccounts();
   };
 
