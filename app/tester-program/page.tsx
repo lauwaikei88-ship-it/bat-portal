@@ -46,7 +46,7 @@ export default function TesterProgramPage() {
                 <p className="text-gray-600 leading-relaxed mb-4">
                   Because our Meta (Facebook/Instagram) integration is currently in "Development Mode", we must manually whitelist your Facebook account before you can connect it.
                 </p>
-                <a href="mailto:hello@post2post.app?subject=Join Tester Program" className="inline-flex items-center gap-2 text-sm font-bold text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 px-5 py-2.5 rounded-lg transition-colors">
+                <a href="mailto:airdriveteam@hotmail.com?subject=Join Tester Program" className="inline-flex items-center gap-2 text-sm font-bold text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 px-5 py-2.5 rounded-lg transition-colors">
                   <Mail size={16} />
                   Email us to join
                 </a>
@@ -88,7 +88,7 @@ export default function TesterProgramPage() {
           <div className="mt-16 pt-12 border-t border-gray-100 text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Ready to help us test?</h2>
             <p className="text-gray-600 mb-8">We're only accepting a limited number of testers in this initial phase.</p>
-            <a href="mailto:hello@post2post.app?subject=Join Tester Program" className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-bold text-white rounded-lg transition-colors hover:opacity-90 shadow-sm" style={{ backgroundColor: '#16a34a' }}>
+            <a href="mailto:airdriveteam@hotmail.com?subject=Join Tester Program" className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-bold text-white rounded-lg transition-colors hover:opacity-90 shadow-sm" style={{ backgroundColor: '#16a34a' }}>
               <Mail size={16} />
               Apply for Tester Access
             </a>
