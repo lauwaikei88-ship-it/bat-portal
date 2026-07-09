@@ -2,7 +2,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
-import { User, CreditCard, Link2, Shield, Plus, ExternalLink, Zap, LogOut, CheckCircle2, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { User, CreditCard, Link2, Shield, Plus, ExternalLink, Zap, LogOut, CheckCircle2, XCircle, AlertCircle, RefreshCw, Camera, Lock, Trash2, Save, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
 type SocialAccount = {
@@ -65,8 +65,23 @@ export default function SettingsPage() {
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
   const [loadingDebug, setLoadingDebug] = useState(false);
 
+  // Profile state
+  const [profileUser, setProfileUser] = useState<{ id: string; email: string; display_name: string } | null>(null);
+  const [displayName, setDisplayName] = useState('');
+  const [savingName, setSavingName] = useState(false);
+  const [nameSaved, setNameSaved] = useState(false);
+
+  // Password state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPasswords, setShowPasswords] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [passwordMsg, setPasswordMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
   useEffect(() => {
     fetchAccounts();
+    fetchProfile();
   }, []);
 
   const fetchAccounts = async () => {
@@ -86,9 +101,66 @@ export default function SettingsPage() {
   };
 
   const handleDisconnect = async (id: string) => {
-    // Use the server-side route for delete too, to avoid session issues
     await fetch(`/api/accounts?id=${id}`, { method: 'DELETE' });
     fetchAccounts();
+  };
+
+  // ── Profile helpers ──
+  const fetchProfile = async () => {
+    const res = await fetch('/api/profile');
+    if (res.ok) {
+      const json = await res.json();
+      setProfileUser(json);
+      setDisplayName(json.display_name || '');
+    }
+  };
+
+  const handleSaveName = async () => {
+    if (!displayName.trim()) return;
+    setSavingName(true);
+    setNameSaved(false);
+    await fetch('/api/profile', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ display_name: displayName.trim() }),
+    });
+    setSavingName(false);
+    setNameSaved(true);
+    setTimeout(() => setNameSaved(false), 3000);
+  };
+
+  const handleChangePassword = async () => {
+    setPasswordMsg(null);
+    if (newPassword.length < 8) {
+      setPasswordMsg({ type: 'error', text: 'Password must be at least 8 characters.' });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMsg({ type: 'error', text: 'Passwords do not match.' });
+      return;
+    }
+    setSavingPassword(true);
+    const res = await fetch('/api/profile/password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ new_password: newPassword }),
+    });
+    const json = await res.json();
+    setSavingPassword(false);
+    if (res.ok) {
+      setPasswordMsg({ type: 'success', text: 'Password updated successfully.' });
+      setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+    } else {
+      setPasswordMsg({ type: 'error', text: json.error || 'Failed to update password.' });
+    }
+  };
+
+  // Initials avatar helper
+  const getInitials = (name: string, email: string) => {
+    if (name?.trim()) {
+      return name.trim().split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    return (email?.[0] || 'U').toUpperCase();
   };
 
   const runDebug = async () => {
@@ -331,12 +403,180 @@ export default function SettingsPage() {
               {/* PROFILE TAB */}
               {activeTab === 'profile' && (
                 <div className="space-y-6">
+
+                  {/* Avatar & Name Card */}
                   <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-6 sm:p-8">
                     <h2 className="text-xl font-bold text-gray-900 mb-6">Profile Settings</h2>
-                    <div className="text-center py-12 bg-gray-50/80 rounded-xl border border-dashed border-gray-200">
-                      <p className="text-gray-500">Profile management coming soon.</p>
+
+                    {/* Avatar row */}
+                    <div className="flex items-center gap-5 mb-8 pb-8 border-b border-gray-100">
+                      <div className="relative flex-shrink-0">
+                        <div
+                          className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-sm"
+                          style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
+                        >
+                          {profileUser ? getInitials(profileUser.display_name, profileUser.email) : '…'}
+                        </div>
+                        <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm">
+                          <Camera className="w-3.5 h-3.5 text-gray-400" />
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-base font-semibold text-gray-900">
+                          {profileUser?.display_name || profileUser?.email?.split('@')[0] || '—'}
+                        </p>
+                        <p className="text-sm text-gray-400 mt-0.5">{profileUser?.email || '—'}</p>
+                        <span className="inline-flex items-center mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-600 border border-indigo-100">
+                          Free Plan
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Display Name */}
+                    <div className="space-y-5">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Display Name</label>
+                        <div className="flex gap-3">
+                          <input
+                            type="text"
+                            value={displayName}
+                            onChange={e => setDisplayName(e.target.value)}
+                            placeholder="Your name"
+                            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                          />
+                          <button
+                            onClick={handleSaveName}
+                            disabled={savingName || !displayName.trim()}
+                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-colors"
+                          >
+                            {nameSaved ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+                            {nameSaved ? 'Saved!' : savingName ? 'Saving…' : 'Save'}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Email (read-only) */}
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
+                        <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5">
+                          <span className="text-sm text-gray-600 flex-1">{profileUser?.email || '—'}</span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">Verified</span>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1.5">Email changes are not supported yet.</p>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Change Password Card */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-6 sm:p-8">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-9 h-9 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center">
+                        <Lock className="w-4 h-4 text-violet-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-gray-900">Change Password</h3>
+                        <p className="text-xs text-gray-400">Choose a strong password — at least 8 characters.</p>
+                      </div>
+                    </div>
+
+                    {passwordMsg && (
+                      <div className={`mb-5 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
+                        passwordMsg.type === 'success'
+                          ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+                          : 'bg-red-50 border border-red-200 text-red-700'
+                      }`}>
+                        {passwordMsg.type === 'success'
+                          ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                          : <AlertCircle className="w-4 h-4 flex-shrink-0" />}
+                        {passwordMsg.text}
+                      </div>
+                    )}
+
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">New Password</label>
+                        <div className="relative">
+                          <input
+                            type={showPasswords ? 'text' : 'password'}
+                            value={newPassword}
+                            onChange={e => setNewPassword(e.target.value)}
+                            placeholder="Minimum 8 characters"
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 pr-11 text-sm text-gray-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                          />
+                          <button onClick={() => setShowPasswords(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            {showPasswords ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Confirm New Password</label>
+                        <input
+                          type={showPasswords ? 'text' : 'password'}
+                          value={confirmPassword}
+                          onChange={e => setConfirmPassword(e.target.value)}
+                          placeholder="Repeat your new password"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                        />
+                      </div>
+
+                      {/* Strength indicator */}
+                      {newPassword.length > 0 && (
+                        <div className="space-y-1.5">
+                          <div className="flex gap-1">
+                            {[1, 2, 3, 4].map(i => (
+                              <div key={i} className={`h-1 flex-1 rounded-full transition-all ${
+                                newPassword.length >= i * 3
+                                  ? newPassword.length >= 12 ? 'bg-emerald-400'
+                                    : newPassword.length >= 8 ? 'bg-yellow-400'
+                                    : 'bg-red-400'
+                                  : 'bg-gray-200'
+                              }`} />
+                            ))}
+                          </div>
+                          <p className={`text-[11px] font-medium ${
+                            newPassword.length >= 12 ? 'text-emerald-600' : newPassword.length >= 8 ? 'text-yellow-600' : 'text-red-500'
+                          }`}>
+                            {newPassword.length >= 12 ? 'Strong' : newPassword.length >= 8 ? 'Moderate' : 'Too short'}
+                          </p>
+                        </div>
+                      )}
+
+                      <button
+                        onClick={handleChangePassword}
+                        disabled={savingPassword || !newPassword || !confirmPassword}
+                        className="w-full py-2.5 bg-gray-900 hover:bg-gray-800 disabled:opacity-40 text-white text-sm font-semibold rounded-xl transition-colors"
+                      >
+                        {savingPassword ? 'Updating…' : 'Update Password'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Danger Zone */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden p-6 sm:p-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-9 h-9 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center">
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-red-700">Danger Zone</h3>
+                        <p className="text-xs text-red-400">These actions are permanent and cannot be undone.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between p-4 bg-red-50/60 border border-red-100 rounded-xl">
+                      <div>
+                        <p className="text-sm font-semibold text-red-800">Delete Account</p>
+                        <p className="text-xs text-red-500 mt-0.5">Permanently delete your account and all data.</p>
+                      </div>
+                      <Link
+                        href="/delete"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-red-50 border border-red-200 text-red-600 text-sm font-semibold rounded-xl transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Delete
+                      </Link>
+                    </div>
+                  </div>
+
                 </div>
               )}
 
