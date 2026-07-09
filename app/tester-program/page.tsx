@@ -78,7 +78,7 @@ export default function TesterProgramPage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">3. Exclusive Tester Benefits</h3>
                 <p className="text-gray-600 leading-relaxed mb-4">
-                  When we officially launch, our standard price will be <span className="font-bold text-gray-900">$30/year</span>. As a thank you for helping us shape the future of Post 2 Post, all early testers will receive an exclusive lifetime discount on all premium plans.
+                  When we officially launch, our standard price will be <span className="line-through text-gray-400">$60/year</span>. However, as a thank you for helping us shape the future of Post 2 Post, our first 50 early testers will lock in a guaranteed <span className="font-bold text-green-700">50% lifetime discount ($30/year)</span>, plus even more exclusive perks and priority feature requests as we grow.
                 </p>
               </div>
             </div>
