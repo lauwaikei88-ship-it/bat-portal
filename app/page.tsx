@@ -388,12 +388,18 @@ export default function LandingPage() {
             Join {testerCount !== null ? testerCount : '...'} creators already in the beta.
             {spotsLeft !== null && ` Only ${spotsLeft} spots left.`}
           </p>
-          <Link href="/signup"
-            className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-bold text-white rounded-lg transition-colors"
-            style={{ backgroundColor: '#012B3A' }}>
-            Sign up free
-            <ArrowRight size={16} />
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link href="/signup"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-sm font-bold text-white rounded-lg transition-colors"
+              style={{ backgroundColor: '#012B3A' }}>
+              Sign up free
+              <ArrowRight size={16} />
+            </Link>
+            <Link href="/tester-program"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-sm font-bold text-green-700 bg-green-50 border border-green-200 hover:bg-green-100 rounded-lg transition-colors">
+              Learn about Tester Program
+            </Link>
+          </div>
         </div>
       </section>
 
