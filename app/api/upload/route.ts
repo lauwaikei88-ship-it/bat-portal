@@ -5,34 +5,36 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get('file') as File;
+    const fileName = formData.get('fileName') as string;
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    if (!file || !fileName) {
+      return NextResponse.json({ error: 'Missing file or fileName' }, { status: 400 });
     }
 
     const db = createServerSupabase();
-    const ext = file.name.split('.').pop() || 'jpg';
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
 
+    // Convert file to ArrayBuffer, then Buffer for Supabase upload
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const { error: uploadError } = await db.storage
+    // Upload to Supabase using service role (bypasses RLS)
+    const { data, error } = await db.storage
       .from('media')
       .upload(fileName, buffer, {
         contentType: file.type,
-        upsert: false
+        upsert: true
       });
 
-    if (uploadError) {
-      throw new Error(`Upload failed: ${uploadError.message}`);
+    if (error) {
+      throw new Error(`Supabase upload failed: ${error.message}`);
     }
 
+    // Get public URL
     const { data: { publicUrl } } = db.storage
       .from('media')
       .getPublicUrl(fileName);
 
-    return NextResponse.json({ url: publicUrl });
+    return NextResponse.json({ publicUrl, path: fileName });
   } catch (error: any) {
     console.error('Upload error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

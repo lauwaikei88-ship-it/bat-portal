@@ -245,46 +245,27 @@ export default function Dashboard() {
       for (const f of files) {
         const ext = f.name.split('.').pop() || 'jpg';
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
-        
-        let presignRes;
-        let presignData;
-        try {
-          presignRes = await fetch('/api/upload/presign', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fileName })
-          });
-        } catch (err: any) {
-          throw new Error(`presign API network error: ${err.message}`);
-        }
-        
-        presignData = await presignRes.json();
-        if (!presignRes.ok) throw new Error(presignData.error || 'Failed to get upload URL');
 
-        // Use direct fetch to the signedUrl with PUT method to bypass any supabase-js issues
+        const formData = new FormData();
+        formData.append('file', f);
+        formData.append('fileName', fileName);
+
         let uploadRes;
         try {
-          uploadRes = await fetch(presignData.signedUrl, {
-            method: 'PUT',
-            body: f,
-            headers: {
-              'Content-Type': f.type || 'application/octet-stream'
-            }
+          uploadRes = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
           });
         } catch (err: any) {
-          throw new Error(`Storage upload network error: ${err.message}`);
+          throw new Error(`Upload proxy network error: ${err.message}`);
         }
 
+        const uploadData = await uploadRes.json();
         if (!uploadRes.ok) {
-          const errText = await uploadRes.text().catch(() => '');
-          throw new Error(`Upload failed (${uploadRes.status}): ${errText}`);
+          throw new Error(`Upload failed (${uploadRes.status}): ${uploadData.error || 'Unknown error'}`);
         }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('media')
-          .getPublicUrl(presignData.path);
-          
-        publicUrls.push(publicUrl);
+        publicUrls.push(uploadData.publicUrl);
       }
 
       const mediaType = files[0].type.startsWith('video/') ? 'VIDEO' : 'IMAGE';
