@@ -1,10 +1,20 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
+
+// Service-role client — bypasses RLS for writes.
+// Used here because the OAuth redirect may not carry the session cookie.
+function getServiceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
-  const state = searchParams.get('state'); // user.id
+  const state = searchParams.get('state'); // user.id passed during OAuth initiation
   const errorParam = searchParams.get('error');
 
   console.log('[Meta Callback] Received:', { code: !!code, state, errorParam });
@@ -14,20 +24,36 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/settings?error=meta_auth_failed', request.url));
   }
 
+  // Try to get the user from the session cookie first
   const supabase = createClient();
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
   console.log('[Meta Callback] User from session:', user?.id, 'State:', state, 'userError:', userError?.message);
 
-  if (!user) {
-    console.error('[Meta Callback] No user session found, redirecting to login');
+  // Fall back to the state parameter if no session (common in OAuth redirects)
+  let userId = user?.id ?? state;
+
+  if (!userId) {
+    console.error('[Meta Callback] No user ID available (no session, no state), redirecting to login');
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Note: state check - if mismatch we still try to proceed since cookie timing can be off
-  if (user.id !== state) {
-    console.warn('[Meta Callback] State mismatch — user.id:', user.id, 'state:', state, '— proceeding anyway');
+  if (user && user.id !== state) {
+    console.warn('[Meta Callback] State mismatch — user.id:', user.id, 'state:', state, '— using session user ID');
+    userId = user.id;
   }
+
+  // Use service role client for all DB writes to avoid RLS issues during OAuth redirect
+  const serviceSupabase = getServiceClient();
+
+  // Verify the user actually exists in auth.users before proceeding
+  const { data: authUser, error: authUserError } = await serviceSupabase.auth.admin.getUserById(userId);
+  if (authUserError || !authUser?.user) {
+    console.error('[Meta Callback] Could not verify user in auth.users:', userId, authUserError?.message);
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  console.log('[Meta Callback] Verified user:', authUser.user.id, authUser.user.email);
 
   const appId = process.env.NEXT_PUBLIC_META_APP_ID;
   const appSecret = process.env.META_APP_SECRET;
@@ -84,8 +110,8 @@ export async function GET(request: Request) {
 
       if (pageInfoData.id && pageInfoData.name) {
         // Save as page directly
-        const { error: upsertErr1 } = await supabase.from('social_accounts').upsert({
-          user_id: user.id,
+        const { error: upsertErr1 } = await serviceSupabase.from('social_accounts').upsert({
+          user_id: userId,
           platform: 'facebook_page',
           platform_account_id: pageInfoData.id,
           account_name: pageInfoData.name,
@@ -98,8 +124,8 @@ export async function GET(request: Request) {
 
         if (pageInfoData.instagram_business_account) {
           const ig = pageInfoData.instagram_business_account;
-          const { error: upsertErr2 } = await supabase.from('social_accounts').upsert({
-            user_id: user.id,
+          const { error: upsertErr2 } = await serviceSupabase.from('social_accounts').upsert({
+            user_id: userId,
             platform: 'instagram',
             platform_account_id: ig.id,
             account_name: ig.username,
@@ -122,8 +148,8 @@ export async function GET(request: Request) {
     for (const page of pagesData.data) {
       console.log('[Meta Callback] Saving page:', page.name, page.id);
 
-      const { error: upsertErr3 } = await supabase.from('social_accounts').upsert({
-        user_id: user.id,
+      const { error: upsertErr3 } = await serviceSupabase.from('social_accounts').upsert({
+        user_id: userId,
         platform: 'facebook_page',
         platform_account_id: page.id,
         account_name: page.name,
@@ -138,8 +164,8 @@ export async function GET(request: Request) {
         const ig = page.instagram_business_account;
         console.log('[Meta Callback] Saving IG:', ig.username, ig.id);
 
-        const { error: upsertErr4 } = await supabase.from('social_accounts').upsert({
-          user_id: user.id,
+        const { error: upsertErr4 } = await serviceSupabase.from('social_accounts').upsert({
+          user_id: userId,
           platform: 'instagram',
           platform_account_id: ig.id,
           account_name: ig.username,

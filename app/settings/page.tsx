@@ -1,9 +1,10 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { createClient } from '@/lib/supabase-browser';
 import Link from 'next/link';
-import { User, CreditCard, Link2, Shield, Key, Plus, ExternalLink, Zap, LogOut, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { User, CreditCard, Link2, Shield, Plus, ExternalLink, Zap, LogOut, CheckCircle2, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
 
 type SocialAccount = {
   id: string;
@@ -15,16 +16,62 @@ type SocialAccount = {
 
 type Tab = 'profile' | 'billing' | 'accounts' | 'security';
 
+// ─── Inner component that reads search params (requires Suspense wrapper) ───
+function OAuthBanner({ onSuccess }: { onSuccess: () => void }) {
+  const searchParams = useSearchParams();
+  const oauthSuccess = searchParams.get('success');
+  const oauthError = searchParams.get('error');
+
+  useEffect(() => {
+    if (oauthSuccess === 'accounts_connected') {
+      // Re-fetch accounts after a successful OAuth connection
+      onSuccess();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [oauthSuccess]);
+
+  if (!oauthSuccess && !oauthError) return null;
+
+  return (
+    <>
+      {oauthSuccess === 'accounts_connected' && (
+        <div className="mb-6 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-5 py-4 text-sm font-medium">
+          <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+          <span>🎉 Accounts connected successfully! Your social accounts are now ready to use.</span>
+        </div>
+      )}
+      {oauthError && (
+        <div className="mb-6 flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-xl px-5 py-4 text-sm font-medium">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold">Failed to connect account</p>
+            <p className="text-red-600 font-normal mt-0.5">
+              {oauthError === 'meta_auth_failed'
+                ? 'Meta declined the authorisation request.'
+                : oauthError === 'no_pages_found'
+                ? 'No Facebook Pages or Instagram Business accounts were found. Make sure you manage at least one Facebook Page linked to an Instagram Business account.'
+                : oauthError}
+            </p>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('accounts');
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [loading, setLoading] = useState(true);
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
+  const [loadingDebug, setLoadingDebug] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
   }, []);
 
   const fetchAccounts = async () => {
+    setLoading(true);
     const supabase = createClient();
     const { data, error } = await supabase
       .from('social_accounts')
@@ -33,6 +80,8 @@ export default function SettingsPage() {
 
     if (!error && data) {
       setAccounts(data as SocialAccount[]);
+    } else if (error) {
+      console.error('[Settings] fetchAccounts error:', error);
     }
     setLoading(false);
   };
@@ -41,6 +90,19 @@ export default function SettingsPage() {
     const supabase = createClient();
     await supabase.from('social_accounts').delete().eq('id', id);
     fetchAccounts();
+  };
+
+  const runDebug = async () => {
+    setLoadingDebug(true);
+    setDebugInfo(null);
+    try {
+      const res = await fetch('/api/debug/accounts');
+      const data = await res.json();
+      setDebugInfo(JSON.stringify(data, null, 2));
+    } catch (e: any) {
+      setDebugInfo('Failed to fetch debug info: ' + e.message);
+    }
+    setLoadingDebug(false);
   };
 
   const tabs = [
@@ -56,7 +118,12 @@ export default function SettingsPage() {
       
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-5xl mx-auto px-8 py-10">
-          
+
+          {/* OAuth result banners — wrapped in Suspense because useSearchParams requires it */}
+          <Suspense fallback={null}>
+            <OAuthBanner onSuccess={fetchAccounts} />
+          </Suspense>
+
           <div className="mb-10">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">Settings</h1>
             <p className="text-gray-500 text-lg">Manage your account preferences and integrations.</p>
@@ -97,6 +164,14 @@ export default function SettingsPage() {
                           <p className="text-gray-500 text-sm mt-1">Connect your Instagram and Facebook Pages to enable direct publishing.</p>
                         </div>
                         <div className="flex flex-wrap gap-3">
+                          <button
+                            onClick={fetchAccounts}
+                            className="inline-flex items-center gap-2 border border-gray-200 text-gray-600 hover:bg-gray-50 font-medium py-2 px-4 rounded-xl transition-all"
+                            title="Refresh accounts list"
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                            Refresh
+                          </button>
                           <a
                             href="/api/auth/meta"
                             className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium py-2 px-5 rounded-xl transition-all shadow-md shadow-indigo-500/20"
@@ -106,8 +181,6 @@ export default function SettingsPage() {
                           </a>
                         </div>
                       </div>
-
-
 
                       {/* Accounts List */}
                       {loading ? (
@@ -180,6 +253,26 @@ export default function SettingsPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* Debug panel — helps diagnose DB vs RLS issues */}
+                  <div className="bg-gray-900 rounded-2xl p-6 text-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-gray-400 font-mono text-xs uppercase tracking-widest">Diagnostic</p>
+                      <button
+                        onClick={runDebug}
+                        disabled={loadingDebug}
+                        className="inline-flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-xs font-medium py-1.5 px-4 rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 ${loadingDebug ? 'animate-spin' : ''}`} />
+                        {loadingDebug ? 'Checking…' : 'Check Database'}
+                      </button>
+                    </div>
+                    {debugInfo ? (
+                      <pre className="text-green-400 text-xs overflow-auto max-h-96 leading-relaxed">{debugInfo}</pre>
+                    ) : (
+                      <p className="text-gray-600 text-xs font-mono">Click &quot;Check Database&quot; to see what&apos;s in your social_accounts table and diagnose any issues.</p>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -195,7 +288,6 @@ export default function SettingsPage() {
                     </div>
                     
                     <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 text-white relative overflow-hidden">
-                      {/* Decorative elements */}
                       <div className="absolute top-0 right-0 p-8 opacity-10">
                         <Zap className="w-32 h-32" />
                       </div>
@@ -292,4 +384,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-

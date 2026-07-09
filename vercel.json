@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/check-posts",
-      "schedule": "* * * * *"
+      "schedule": "0 3 * * *"
     }
   ]
 }
