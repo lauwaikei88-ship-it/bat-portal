@@ -66,10 +66,11 @@ export default function SettingsPage() {
   const [loadingDebug, setLoadingDebug] = useState(false);
 
   // Profile state
-  const [profileUser, setProfileUser] = useState<{ id: string; email: string; display_name: string } | null>(null);
+  const [profileUser, setProfileUser] = useState<{ id: string; email: string; display_name: string; avatar_url?: string } | null>(null);
   const [displayName, setDisplayName] = useState('');
   const [savingName, setSavingName] = useState(false);
   const [nameSaved, setNameSaved] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   // Password state
   const [currentPassword, setCurrentPassword] = useState('');
@@ -127,6 +128,44 @@ export default function SettingsPage() {
     setSavingName(false);
     setNameSaved(true);
     setTimeout(() => setNameSaved(false), 3000);
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const fileName = `avatar-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileName', fileName);
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const { publicUrl } = await uploadRes.json();
+
+      await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avatar_url: publicUrl }),
+      });
+
+      setProfileUser(prev => prev ? { ...prev, avatar_url: publicUrl } : null);
+    } catch (err: any) {
+      console.error('Failed to upload avatar:', err);
+      alert('Failed to upload avatar');
+    }
+    setUploadingAvatar(false);
   };
 
   const handleChangePassword = async () => {
@@ -411,15 +450,24 @@ export default function SettingsPage() {
                     {/* Avatar row */}
                     <div className="flex items-center gap-5 mb-8 pb-8 border-b border-gray-100">
                       <div className="relative flex-shrink-0">
-                        <div
-                          className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-sm"
-                          style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
-                        >
-                          {profileUser ? getInitials(profileUser.display_name, profileUser.email) : '…'}
-                        </div>
-                        <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm">
-                          <Camera className="w-3.5 h-3.5 text-gray-400" />
-                        </div>
+                        {profileUser?.avatar_url ? (
+                          <img 
+                            src={profileUser.avatar_url} 
+                            alt="Avatar" 
+                            className="w-20 h-20 rounded-2xl object-cover shadow-sm border border-gray-100" 
+                          />
+                        ) : (
+                          <div
+                            className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-sm"
+                            style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
+                          >
+                            {profileUser ? getInitials(profileUser.display_name, profileUser.email) : '…'}
+                          </div>
+                        )}
+                        <label className={`absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm cursor-pointer hover:bg-gray-50 transition-colors ${uploadingAvatar ? 'opacity-50' : ''}`}>
+                          <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} disabled={uploadingAvatar} />
+                          {uploadingAvatar ? <RefreshCw className="w-3.5 h-3.5 text-gray-400 animate-spin" /> : <Camera className="w-3.5 h-3.5 text-gray-600" />}
+                        </label>
                       </div>
                       <div>
                         <p className="text-base font-semibold text-gray-900">

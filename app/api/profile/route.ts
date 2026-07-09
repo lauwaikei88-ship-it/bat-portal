@@ -13,6 +13,7 @@ export async function GET() {
     id: user.id,
     email: user.email ?? '',
     display_name: (user.user_metadata?.display_name as string) ?? '',
+    avatar_url: (user.user_metadata?.avatar_url as string) ?? '',
   });
 }
 
@@ -25,19 +26,24 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json();
-  const display_name = (body.display_name as string)?.trim();
+  const display_name = body.display_name !== undefined ? (body.display_name as string)?.trim() : undefined;
+  const avatar_url = body.avatar_url !== undefined ? (body.avatar_url as string)?.trim() : undefined;
 
-  if (!display_name) {
-    return NextResponse.json({ error: 'display_name is required' }, { status: 400 });
+  const updateData: any = {};
+  if (display_name !== undefined) updateData.display_name = display_name;
+  if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
+
+  if (Object.keys(updateData).length === 0) {
+    return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
   }
 
   const { error } = await supabase.auth.updateUser({
-    data: { display_name },
+    data: updateData,
   });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, ...updateData });
 }
