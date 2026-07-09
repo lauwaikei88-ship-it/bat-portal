@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { createClient } from '@/lib/supabase-browser';
 
 export type SocialAccount = {
   id: string;
@@ -27,23 +26,20 @@ export function AccountProvider({ children }: { children: ReactNode }) {
 
   const fetchAccounts = async () => {
     setLoading(true);
-    const supabase = createClient();
-    
-    // We only fetch instagram accounts for the general view, or we fetch all and group them?
-    // Let's fetch all connected accounts. The user can switch between them.
-    const { data, error } = await supabase
-      .from('social_accounts')
-      .select('id, platform, account_name, profile_picture_url')
-      .order('created_at', { ascending: true });
-
-    if (!error && data) {
-      const typedData = data as SocialAccount[];
-      setAccounts(typedData);
-      
-      // If we don't have an active account but we have accounts, set the first one as active
-      if (!activeAccount && typedData.length > 0) {
-        setActiveAccount(typedData[0]);
+    try {
+      const res = await fetch('/api/accounts');
+      if (res.ok) {
+        const json = await res.json();
+        const typedData = json.accounts as SocialAccount[];
+        setAccounts(typedData);
+        
+        // If we don't have an active account but we have accounts, set the first one as active
+        if (!activeAccount && typedData.length > 0) {
+          setActiveAccount(typedData[0]);
+        }
       }
+    } catch (e) {
+      console.error('[AccountContext] fetchAccounts error:', e);
     }
     setLoading(false);
   };
