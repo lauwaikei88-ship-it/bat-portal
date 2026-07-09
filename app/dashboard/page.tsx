@@ -254,12 +254,18 @@ export default function Dashboard() {
         const presignData = await presignRes.json();
         if (!presignRes.ok) throw new Error(presignData.error || 'Failed to get upload URL');
 
-        const { error: uploadError } = await supabase.storage
-          .from('media')
-          .uploadToSignedUrl(presignData.path, presignData.token, f);
+        // Use direct fetch to the signedUrl with PUT method to bypass any supabase-js issues
+        const uploadRes = await fetch(presignData.signedUrl, {
+          method: 'PUT',
+          body: f,
+          headers: {
+            'Content-Type': f.type || 'application/octet-stream'
+          }
+        });
 
-        if (uploadError) {
-          throw new Error(`Upload failed: ${uploadError.message}`);
+        if (!uploadRes.ok) {
+          const errText = await uploadRes.text().catch(() => '');
+          throw new Error(`Upload failed (${uploadRes.status}): ${errText}`);
         }
 
         const { data: { publicUrl } } = supabase.storage
