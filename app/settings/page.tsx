@@ -429,10 +429,10 @@ export default function SettingsPage() {
                           </div>
                         </div>
 
-                        <button className="bg-white text-gray-900 hover:bg-gray-50 font-semibold py-3 px-6 rounded-xl transition-colors shadow-lg flex items-center gap-2">
+                        <Link href="/tester-program" className="bg-white text-gray-900 hover:bg-gray-50 font-semibold py-3 px-6 rounded-xl transition-colors shadow-lg inline-flex items-center gap-2">
                           <Zap className="w-4 h-4 text-indigo-600" />
                           Upgrade to Pro
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   </div>

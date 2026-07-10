@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import { Search, Bell, Clock, TrendingUp, BarChart2, Zap, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import Link from 'next/link';
 
 const BLUE = "#1d6bf3";
 
@@ -211,19 +212,15 @@ export default function CalendarPage() {
               </div>
               <p className="text-xs text-slate-500">Upgrade for unlimited posts, advanced analytics & more.</p>
             </div>
-            <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-colors text-sm">
+            <Link href="/tester-program" className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-colors text-sm text-center">
               Upgrade to Pro
-            </button>
+            </Link>
           </div>
 
           {/* Weekly Calendar View */}
           <Card className="p-6 mb-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-semibold text-slate-800">Week of {formatDate(startOfWeek.toISOString())} - {formatDate(endOfWeek.toISOString())}</h3>
-              <div className="flex bg-slate-100 p-1 rounded-lg">
-                <button className="px-4 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md shadow-sm">Week</button>
-                <button className="px-4 py-1.5 text-slate-500 hover:text-slate-700 text-xs font-medium rounded-md">List</button>
-              </div>
             </div>
             
             <div className="grid grid-cols-7 gap-2">
