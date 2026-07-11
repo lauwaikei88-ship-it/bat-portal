@@ -2,19 +2,24 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Mail, CalendarDays, Share2, BarChart2, Clock } from 'lucide-react';
+import { ArrowRight, Mail, Plus, Check } from 'lucide-react';
 
 // Brand icons as inline SVGs
 const IgIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400 hover:text-[#E1306C] transition-colors">
     <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
     <circle cx="12" cy="12" r="4" />
     <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
   </svg>
 );
 const FbIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400 hover:text-[#1877F2] transition-colors">
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+const XIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-zinc-400 hover:text-black transition-colors">
+    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
   </svg>
 );
 
@@ -31,26 +36,29 @@ export default function LandingPage() {
   }, []);
 
   const spotsLeft = testerCount !== null ? Math.max(0, 50 - testerCount) : null;
-  const progressPct = testerCount !== null ? Math.min(100, (testerCount / 50) * 100) : 0;
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-[#012B3A]" style={{ fontFamily: "'Montserrat', 'Helvetica Neue', Arial, sans-serif" }}>
+    <div className="min-h-screen flex flex-col bg-white text-zinc-900 selection:bg-zinc-200">
+      
+      {/* ── GLOBAL ANNOUNCEMENT BAR ── */}
+      <div className="bg-emerald-500 text-white text-xs font-bold text-center py-2 px-4 tracking-wide z-50 relative">
+        Beta Program — Only {spotsLeft !== null ? spotsLeft : '...'} spots remaining
+      </div>
 
       {/* ── NAV ── */}
-      <header className="border-b border-[#D9DFE1] bg-white sticky top-0 z-50">
+      <header className="border-b border-zinc-200 bg-white sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Post 2 Post" className="w-8 h-8 rounded-lg" />
-            <span className="font-bold text-[#012B3A] text-lg">Post 2 Post</span>
+            <img src="/logo.png" alt="Post 2 Post" className="w-8 h-8 rounded-lg grayscale" />
+            <span className="font-extrabold text-zinc-900 text-lg tracking-tight">Post 2 Post</span>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/login"
-              className="px-5 py-2.5 text-sm font-semibold text-[#012B3A] hover:bg-[#F2F4F5] rounded-lg transition-colors">
+              className="px-5 py-2.5 text-sm font-semibold text-zinc-900 hover:bg-zinc-100 rounded-lg transition-colors active:scale-[0.98]">
               Log in
             </Link>
             <Link href="/signup"
-              className="px-5 py-2.5 text-sm font-semibold text-white rounded-lg transition-colors"
-              style={{ backgroundColor: '#012B3A' }}>
+              className="px-5 py-2.5 text-sm font-semibold text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-all active:scale-[0.98]">
               Sign up free
             </Link>
           </div>
@@ -58,318 +66,218 @@ export default function LandingPage() {
       </header>
 
       {/* ── HERO ── */}
-      <section className="bg-[#F7F9F9] border-b border-[#D9DFE1]">
-        <div className="max-w-6xl mx-auto px-6 py-20 md:py-28 flex flex-col md:flex-row items-center gap-12">
+      <section className="bg-white border-b border-zinc-200 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6 py-24 md:py-32 flex flex-col md:flex-row items-center gap-16">
 
           {/* Left copy */}
-          <div className="flex-1 text-left relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-[#D9DFE1] bg-white text-[#41606B]">
-              Beta Program · 50 spots
-            </div>
-
-            <h1 className="text-4xl md:text-6xl font-bold text-[#012B3A] leading-tight mb-5">
+          <div className="flex-1 text-left relative z-10 transition-all duration-1000 ease-out translate-y-0 opacity-100">
+            <h1 className="text-5xl md:text-7xl font-extrabold text-zinc-900 leading-[1.05] tracking-tighter mb-6">
               Plan once,<br />
-              <span style={{ color: '#007978' }}>post anytime.</span>
+              post anytime.
             </h1>
 
-            <p className="text-lg text-[#41606B] mb-8 max-w-lg leading-relaxed">
-              Schedule your content across multiple social accounts — all from one simple dashboard.
+            <p className="text-lg text-zinc-500 mb-10 max-w-md leading-relaxed font-medium">
+              Schedule your content across multiple social accounts — all from one sleek command center.
             </p>
 
-            {/* Platforms row */}
-            <div className="flex items-center gap-4 mb-8 text-[#80959C]">
-              <span className="text-xs font-bold uppercase tracking-widest">Works with</span>
-              <IgIcon />
-              <FbIcon />
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <Link href="/signup"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-bold text-white rounded-lg transition-colors shadow-sm"
-                style={{ backgroundColor: '#012B3A' }}>
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-bold text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-zinc-200/50">
                 Get started free
                 <ArrowRight size={16} />
               </Link>
               <Link href="/login"
-                className="inline-flex items-center justify-center px-7 py-3.5 text-sm font-bold text-[#012B3A] rounded-lg border border-[#D9DFE1] bg-white hover:bg-[#F2F4F5] transition-colors shadow-sm">
-                Log in
+                className="inline-flex items-center justify-center px-8 py-4 text-sm font-bold text-zinc-900 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 transition-all active:scale-[0.98]">
+                View Demo
               </Link>
+            </div>
+
+            {/* Platforms row */}
+            <div className="flex items-center gap-5 text-zinc-400">
+              <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Works with</span>
+              <IgIcon />
+              <FbIcon />
+              <XIcon />
             </div>
           </div>
 
-          {/* Right: Mockup Composition & Live Counter */}
-          <div className="flex-1 w-full relative">
-            {/* Background decoration */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#E6EFEF] to-transparent rounded-3xl -rotate-3 scale-105 opacity-50 z-0"></div>
-
-            <div className="relative z-10 grid gap-4 grid-cols-1 sm:grid-cols-2">
-              
-              {/* Dashboard snippet mockup */}
-              <div className="bg-white border border-[#D9DFE1] rounded-2xl p-5 shadow-sm transform hover:-translate-y-1 transition-transform">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded bg-[#F2F4F5] flex items-center justify-center">
-                      <CalendarDays size={12} className="text-[#80959C]" />
-                    </div>
-                    <span className="text-xs font-bold text-[#012B3A]">This Week</span>
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#007978] bg-[#E6EFEF] px-2 py-1 rounded">Active</span>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="h-14 rounded-lg border border-[#D9DFE1] p-2 flex gap-3 items-center">
-                    <div className="w-1.5 h-full rounded-full bg-[#E1306C]"></div>
-                    <div className="flex-1">
-                      <div className="h-2 w-16 bg-[#D9DFE1] rounded mb-2"></div>
-                      <div className="h-2 w-24 bg-[#F2F4F5] rounded"></div>
-                    </div>
-                  </div>
-                  <div className="h-14 rounded-lg border border-[#D9DFE1] p-2 flex gap-3 items-center">
-                    <div className="w-1.5 h-full rounded-full bg-[#1877F2]"></div>
-                    <div className="flex-1">
-                      <div className="h-2 w-20 bg-[#D9DFE1] rounded mb-2"></div>
-                      <div className="h-2 w-16 bg-[#F2F4F5] rounded"></div>
-                    </div>
-                  </div>
-                </div>
+          {/* Right: Video Frame Mockup */}
+          <div className="flex-1 w-full relative perspective-1000">
+            <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-2 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.15)] transform rotate-1 hover:rotate-0 transition-transform duration-700 ease-out">
+              {/* Browser Top Bar */}
+              <div className="flex gap-1.5 pb-2 pl-2 pt-1">
+                <div className="h-2.5 w-2.5 rounded-full bg-zinc-300"></div>
+                <div className="h-2.5 w-2.5 rounded-full bg-zinc-300"></div>
+                <div className="h-2.5 w-2.5 rounded-full bg-zinc-300"></div>
               </div>
-
-              {/* Live Counter Card */}
-              <div className="bg-white border border-[#D9DFE1] rounded-2xl p-6 shadow-sm flex flex-col justify-center sm:translate-y-8">
-                <p className="text-xs font-bold uppercase tracking-widest text-[#80959C] mb-2">Beta Spots</p>
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-5xl font-bold text-[#012B3A] tracking-tight">
-                    {testerCount !== null ? testerCount : '—'}
-                  </span>
-                  <span className="text-xl text-[#BFCACE] font-medium">/ 50</span>
-                </div>
-
-                <div className="w-full h-2 rounded-full bg-[#F2F4F5] mb-4 overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{ width: `${progressPct}%`, backgroundColor: '#007978' }}
-                  />
-                </div>
-
-                {spotsLeft !== null && (
-                  <p className="text-sm font-semibold text-[#007978] flex items-center gap-2">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: '#007978' }} />
-                      <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: '#007978' }} />
-                    </span>
-                    {spotsLeft} remaining
-                  </p>
-                )}
-              </div>
+              {/* The Actual Video */}
+              <video 
+                autoPlay 
+                muted 
+                loop 
+                playsInline
+                className="w-full rounded-lg border border-zinc-200 bg-white"
+              >
+                <source src="/Adv_p2p_1.mp4" type="video/mp4" />
+              </video>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ── */}
-      <section className="py-24 border-b border-[#D9DFE1]">
+      {/* ── HOW IT WORKS (Bento Grid) ── */}
+      <section className="py-32 bg-white border-b border-zinc-200">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-[#012B3A] mb-4">How it works</h2>
-          <p className="text-[#41606B] mb-16 max-w-xl">Three simple steps — from setup to your first scheduled post in minutes.</p>
+          <div className="mb-16">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-zinc-900 tracking-tight mb-4">How it works</h2>
+            <p className="text-zinc-500 max-w-xl text-lg font-medium">Three simple steps — from setup to your first scheduled post in minutes.</p>
+          </div>
 
-          {/* Step 1 */}
-          <div className="flex flex-col md:flex-row items-center gap-10 mb-20">
-            <div className="flex-1">
-              <div className="inline-flex w-9 h-9 rounded-lg items-center justify-center text-white text-sm font-bold mb-5" style={{ backgroundColor: '#007978' }}>1</div>
-              <h3 className="text-xl font-bold text-[#012B3A] mb-3">Connect your social accounts</h3>
-              <p className="text-[#41606B] leading-relaxed max-w-sm">
-                Link your Instagram and Facebook pages in seconds. No complicated setup — just authorise and you're ready.
-              </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {/* Box 1: Connect */}
+            <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-8 shadow-inner flex flex-col group hover:border-zinc-300 transition-colors">
+              <div className="text-zinc-900 font-extrabold text-xl mb-2">1. Connect</div>
+              <p className="text-sm text-zinc-500 mb-8 font-medium">Link your pages in seconds.</p>
+              
+              <div className="mt-auto relative bg-white border border-zinc-200 rounded-xl p-6 flex flex-col items-center justify-center gap-4">
+                 <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500"><IgIcon /></div>
+                    <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500"><FbIcon /></div>
+                 </div>
+                 <button className="px-4 py-2 bg-zinc-900 text-white text-xs font-bold rounded-lg w-full mt-2">Connect Accounts</button>
+              </div>
             </div>
-            {/* Mockup card */}
-            <div className="flex-1 w-full">
-              <div className="bg-[#F7F9F9] border border-[#D9DFE1] rounded-2xl p-6">
-                <p className="text-xs font-bold uppercase tracking-widest text-[#80959C] mb-4">Connected accounts</p>
-                <div className="space-y-3">
-                  {[
-                    { name: 'Instagram', handle: '@yourbrand', color: '#E1306C' },
-                    { name: 'Facebook', handle: 'Your Page', color: '#1877F2' },
-                  ].map(acc => (
-                    <div key={acc.name} className="flex items-center gap-3 bg-white border border-[#D9DFE1] rounded-xl px-4 py-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                        style={{ backgroundColor: acc.color }}>
-                        {acc.name[0]}
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-[#012B3A]">{acc.name}</p>
-                        <p className="text-xs text-[#80959C]">{acc.handle}</p>
-                      </div>
-                      <div className="ml-auto flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#007978' }} />
-                        <span className="text-xs text-[#007978] font-semibold">Connected</span>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="flex items-center gap-3 border border-dashed border-[#D9DFE1] rounded-xl px-4 py-3 text-[#BFCACE] text-sm">
-                    + Add another account
-                  </div>
+
+            {/* Box 2: Write */}
+            <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-8 shadow-inner flex flex-col group hover:border-zinc-300 transition-colors">
+              <div className="text-zinc-900 font-extrabold text-xl mb-2">2. Write</div>
+              <p className="text-sm text-zinc-500 mb-8 font-medium">Type once, preview everywhere.</p>
+              
+              <div className="mt-auto bg-white border border-zinc-200 rounded-xl p-4">
+                <div className="border border-zinc-200 rounded-lg p-3 text-xs text-zinc-400 mb-3 h-20 bg-zinc-50 font-mono">
+                  Excited to share our latest update! 🚀
+                  <span className="animate-pulse">|</span>
+                </div>
+                <div className="flex justify-between items-center">
+                   <div className="flex gap-2">
+                     <span className="w-4 h-4 rounded-full bg-zinc-200"></span>
+                     <span className="w-4 h-4 rounded-full bg-zinc-200"></span>
+                   </div>
+                   <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Tomorrow 9AM</div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Step 2 */}
-          <div className="flex flex-col md:flex-row-reverse items-center gap-10 mb-20">
-            <div className="flex-1">
-              <div className="inline-flex w-9 h-9 rounded-lg items-center justify-center text-white text-sm font-bold mb-5" style={{ backgroundColor: '#007978' }}>2</div>
-              <h3 className="text-xl font-bold text-[#012B3A] mb-3">Write your post and pick a time</h3>
-              <p className="text-[#41606B] leading-relaxed max-w-sm">
-                Type your caption, select which accounts to post to, and choose when it should go live. That's it.
-              </p>
-            </div>
-            {/* Mockup card */}
-            <div className="flex-1 w-full">
-              <div className="bg-[#F7F9F9] border border-[#D9DFE1] rounded-2xl p-6">
-                <p className="text-xs font-bold uppercase tracking-widest text-[#80959C] mb-4">New post</p>
-                <div className="bg-white border border-[#D9DFE1] rounded-xl p-4 mb-3 text-sm text-[#41606B] min-h-[72px]">
-                  Excited to share our latest update with you all! 🚀 Stay tuned for more.
-                </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 border border-[#D9DFE1] rounded-lg bg-white text-xs font-semibold text-[#012B3A]">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#E1306C' }} />
-                    Instagram
-                  </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 border border-[#D9DFE1] rounded-lg bg-white text-xs font-semibold text-[#012B3A]">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#1877F2' }} />
-                    Facebook
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="text-xs text-[#80959C]">📅 Tomorrow, 9:00 AM</div>
-                  <div className="px-4 py-2 text-xs font-bold text-white rounded-lg" style={{ backgroundColor: '#007978' }}>Schedule</div>
-                </div>
+            {/* Box 3: Done */}
+            <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-8 shadow-inner flex flex-col group hover:border-zinc-300 transition-colors">
+              <div className="text-zinc-900 font-extrabold text-xl mb-2">3. Done</div>
+              <p className="text-sm text-zinc-500 mb-8 font-medium">Your post goes live automatically.</p>
+              
+              <div className="mt-auto bg-white border border-zinc-200 rounded-xl p-6 flex flex-col items-center justify-center text-center">
+                 <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3">
+                   <Check size={24} strokeWidth={3} />
+                 </div>
+                 <div className="text-sm font-bold text-zinc-900">Success! Published</div>
+                 <div className="text-xs text-zinc-400 mt-1">3 platforms updated</div>
               </div>
             </div>
-          </div>
 
-          {/* Step 3 */}
-          <div className="flex flex-col md:flex-row items-center gap-10">
-            <div className="flex-1">
-              <div className="inline-flex w-9 h-9 rounded-lg items-center justify-center text-white text-sm font-bold mb-5" style={{ backgroundColor: '#007978' }}>3</div>
-              <h3 className="text-xl font-bold text-[#012B3A] mb-3">Your post goes live automatically</h3>
-              <p className="text-[#41606B] leading-relaxed max-w-sm">
-                Sit back. Post 2 Post publishes your content on time — every time. No reminders, no manual posting.
-              </p>
-            </div>
-            {/* Mockup card */}
-            <div className="flex-1 w-full">
-              <div className="bg-[#F7F9F9] border border-[#D9DFE1] rounded-2xl p-6">
-                <p className="text-xs font-bold uppercase tracking-widest text-[#80959C] mb-4">This week</p>
-                <div className="grid grid-cols-7 gap-1 mb-2">
-                  {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-                    <div key={i} className="text-center text-xs font-bold text-[#80959C] py-1">{d}</div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-7 gap-1">
-                  {[null, null, null, null, null, null, null].map((_, i) => (
-                    <div key={i} className={`rounded-lg h-10 flex items-center justify-center text-xs font-semibold ${i === 0 || i === 2 || i === 4 ? 'text-white' : 'bg-[#F2F4F5] text-[#BFCACE]'}`}
-                      style={i === 0 || i === 2 || i === 4 ? { backgroundColor: '#007978' } : {}}>
-                      {i === 0 || i === 2 || i === 4 ? '✓' : ''}
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs text-[#007978] font-semibold mt-4">3 posts published this week</p>
-              </div>
-            </div>
           </div>
-
         </div>
       </section>
 
       {/* ── PRICING ── */}
-      <section className="py-24 bg-[#F7F9F9] border-b border-[#D9DFE1]">
+      <section className="py-32 bg-white border-b border-zinc-200">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-[#012B3A] mb-3">Simple pricing</h2>
-          <p className="text-[#41606B] mb-12">Start free. Upgrade when you need more.</p>
+          <div className="mb-16 text-center">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-zinc-900 tracking-tight mb-4">Simple pricing</h2>
+            <p className="text-zinc-500 text-lg font-medium">Start free. Upgrade when you need more.</p>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-8 items-center max-w-5xl mx-auto">
 
             {/* Free */}
-            <div className="border border-[#D9DFE1] rounded-xl p-8 bg-white flex flex-col">
-              <div className="text-xs font-bold uppercase tracking-widest text-[#80959C] mb-3">Beta Access</div>
-              <div className="text-4xl font-bold text-[#012B3A] mb-1">Free</div>
-              <p className="text-sm text-[#41606B] mb-7">Try it out during the beta.</p>
+            <div className="border border-zinc-200 rounded-2xl p-8 bg-zinc-50 flex flex-col hover:border-zinc-300 transition-colors">
+              <div className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-3">Beta Access</div>
+              <div className="text-4xl font-extrabold text-zinc-900 tracking-tight mb-2">Free</div>
+              <p className="text-sm text-zinc-500 mb-8 font-medium">Try it out during the beta.</p>
 
-              <ul className="space-y-3 mb-8 flex-1">
+              <ul className="space-y-4 mb-8 flex-1">
                 {[
                   '3 social accounts',
                   'Content calendar',
                   'Multi-platform scheduling',
                   'Post analytics',
                 ].map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-[#012B3A] font-medium">
-                    <CheckCircle2 size={17} className="flex-shrink-0 mt-0.5" style={{ color: '#007978' }} />
+                  <li key={f} className="flex items-start gap-3 text-sm text-zinc-700 font-medium">
+                    <Check size={16} className="text-zinc-900 mt-0.5 flex-shrink-0" strokeWidth={2.5} />
                     {f}
                   </li>
                 ))}
               </ul>
 
               <Link href="/signup"
-                className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-[#012B3A] rounded-lg border border-[#D9DFE1] hover:bg-[#F2F4F5] transition-colors">
+                className="flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-bold text-zinc-900 bg-white rounded-lg border border-zinc-200 hover:bg-zinc-50 transition-all active:scale-[0.98]">
                 Get started free
               </Link>
             </div>
 
-            {/* Yearly — highlighted */}
-            <div className="rounded-xl p-8 bg-[#012B3A] text-white flex flex-col relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold text-white" style={{ backgroundColor: '#007978' }}>
+            {/* Yearly — Pro Card (Slightly larger, 2px border) */}
+            <div className="border-2 border-zinc-900 rounded-2xl p-10 bg-white flex flex-col relative md:scale-105 shadow-xl z-10">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-bold text-white bg-zinc-900 uppercase tracking-widest">
                 Most popular
               </div>
-              <div className="text-xs font-bold uppercase tracking-widest text-[#BFCACE] mb-3">Pro — Yearly</div>
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-4xl font-bold text-white">$30</span>
-                <span className="text-[#80959C] text-sm font-medium">/ year</span>
+              <div className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-3">Pro — Yearly</div>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-4xl font-extrabold text-zinc-900 tracking-tight">$30</span>
+                <span className="text-zinc-400 text-sm font-bold uppercase tracking-widest">/ year</span>
               </div>
-              <p className="text-sm text-[#80959C] mb-7">Best value for serious creators.</p>
+              <p className="text-sm text-zinc-500 mb-8 font-medium">Best value for serious creators.</p>
 
-              <ul className="space-y-3 mb-8 flex-1">
+              <ul className="space-y-4 mb-8 flex-1">
                 {[
                   '10 social accounts',
                   'Everything in Beta Access',
                   'Priority email support',
                 ].map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-white font-medium">
-                    <CheckCircle2 size={17} className="flex-shrink-0 mt-0.5" style={{ color: '#DFFFDE' }} />
+                  <li key={f} className="flex items-start gap-3 text-sm text-zinc-900 font-medium">
+                    <Plus size={16} className="text-emerald-500 mt-0.5 flex-shrink-0" strokeWidth={3} />
                     {f}
                   </li>
                 ))}
               </ul>
 
               <a href="mailto:hello@post2post.app?subject=Pro Plan"
-                className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-[#012B3A] bg-white rounded-lg hover:bg-[#F2F4F5] transition-colors">
-                <Mail size={15} />
-                Email us to upgrade
+                className="flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-bold text-zinc-900 bg-white border border-zinc-900 rounded-lg hover:bg-zinc-50 transition-all active:scale-[0.98]">
+                <Mail size={16} />
+                Email to upgrade
               </a>
             </div>
 
             {/* Agency */}
-            <div className="border border-[#D9DFE1] rounded-xl p-8 bg-white flex flex-col">
-              <div className="text-xs font-bold uppercase tracking-widest text-[#80959C] mb-3">Agency</div>
-              <div className="text-4xl font-bold text-[#012B3A] mb-1">Custom</div>
-              <p className="text-sm text-[#41606B] mb-7">Need more than 10 accounts?</p>
+            <div className="border border-zinc-200 rounded-2xl p-8 bg-zinc-50 flex flex-col hover:border-zinc-300 transition-colors">
+              <div className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-3">Agency</div>
+              <div className="text-4xl font-extrabold text-zinc-900 tracking-tight mb-2">Custom</div>
+              <p className="text-sm text-zinc-500 mb-8 font-medium">Need more than 10 accounts?</p>
 
-              <ul className="space-y-3 mb-8 flex-1">
+              <ul className="space-y-4 mb-8 flex-1">
                 {[
                   'Unlimited social accounts',
                   'Everything in Pro',
                   'Custom setup support',
                 ].map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-[#012B3A] font-medium">
-                    <CheckCircle2 size={17} className="flex-shrink-0 mt-0.5" style={{ color: '#007978' }} />
+                  <li key={f} className="flex items-start gap-3 text-sm text-zinc-700 font-medium">
+                    <Check size={16} className="text-zinc-900 mt-0.5 flex-shrink-0" strokeWidth={2.5} />
                     {f}
                   </li>
                 ))}
               </ul>
 
               <a href="mailto:hello@post2post.app?subject=Agency Plan"
-                className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-[#012B3A] rounded-lg border border-[#D9DFE1] hover:bg-[#F2F4F5] transition-colors">
-                <Mail size={15} />
+                className="flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-bold text-zinc-900 bg-white rounded-lg border border-zinc-200 hover:bg-zinc-50 transition-all active:scale-[0.98]">
+                <Mail size={16} />
                 Email us
               </a>
             </div>
@@ -379,43 +287,44 @@ export default function LandingPage() {
       </section>
 
       {/* ── FINAL CTA ── */}
-      <section className="py-20">
+      <section className="py-32 bg-zinc-50 border-b border-zinc-200">
         <div className="max-w-2xl mx-auto px-6 text-center">
-          <h2 className="text-2xl md:text-4xl font-bold text-[#012B3A] mb-4">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-zinc-900 tracking-tight mb-6">
             Ready to get started?
           </h2>
-          <p className="text-[#41606B] mb-8">
+          <p className="text-zinc-500 mb-10 text-lg font-medium">
             Join {testerCount !== null ? testerCount : '...'} creators already in the beta.
             {spotsLeft !== null && ` Only ${spotsLeft} spots left.`}
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/signup"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-sm font-bold text-white rounded-lg transition-colors"
-              style={{ backgroundColor: '#012B3A' }}>
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-bold text-white bg-zinc-900 rounded-lg hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-lg shadow-zinc-200/50">
               Sign up free
               <ArrowRight size={16} />
-            </Link>
-            <Link href="/tester-program"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-sm font-bold text-green-700 bg-green-50 border border-green-200 hover:bg-green-100 rounded-lg transition-colors">
-              Learn about Tester Program
             </Link>
           </div>
         </div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="border-t border-[#D9DFE1] py-8">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-[#80959C]">
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Post 2 Post" className="w-6 h-6 rounded" />
-            <span className="font-semibold text-[#41606B]">Post 2 Post</span>
+      <footer className="bg-white py-12">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-zinc-500 font-medium">
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="Post 2 Post" className="w-6 h-6 rounded grayscale" />
+            <span className="font-bold text-zinc-900 tracking-tight">Post 2 Post</span>
           </div>
-          <div className="flex gap-6">
-            <Link href="/privacy" className="hover:text-[#012B3A] transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-[#012B3A] transition-colors">Terms</Link>
-            <a href="mailto:hello@post2post.app" className="hover:text-[#012B3A] transition-colors">Contact</a>
+          <div className="flex gap-8">
+            <Link href="/privacy" className="hover:text-zinc-900 transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-zinc-900 transition-colors">Terms</Link>
+            <a href="mailto:hello@post2post.app" className="hover:text-zinc-900 transition-colors">Contact</a>
           </div>
-          <p>© 2025 Post 2 Post.</p>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-zinc-50 border border-zinc-200 rounded-full px-3 py-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span className="text-xs font-bold text-zinc-700">All systems operational</span>
+            </div>
+          </div>
+          <p className="md:ml-auto">© 2026 Post 2 Post.</p>
         </div>
       </footer>
 
