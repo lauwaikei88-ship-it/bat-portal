@@ -49,7 +49,7 @@ export default function LandingPage() {
       <header className="border-b border-zinc-200 bg-white sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Post 2 Post" className="w-8 h-8 rounded-lg grayscale" />
+            <img src="/logo.png" alt="Post 2 Post" className="w-8 h-8 rounded-lg" />
             <span className="font-extrabold text-zinc-900 text-lg tracking-tight">Post 2 Post</span>
           </div>
           <div className="flex items-center gap-2">
@@ -106,17 +106,18 @@ export default function LandingPage() {
             <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-2 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.15)] transform rotate-1 hover:rotate-0 transition-transform duration-700 ease-out">
               {/* Browser Top Bar */}
               <div className="flex gap-1.5 pb-2 pl-2 pt-1">
-                <div className="h-2.5 w-2.5 rounded-full bg-zinc-300"></div>
-                <div className="h-2.5 w-2.5 rounded-full bg-zinc-300"></div>
-                <div className="h-2.5 w-2.5 rounded-full bg-zinc-300"></div>
+                <div className="h-2.5 w-2.5 rounded-full bg-red-400"></div>
+                <div className="h-2.5 w-2.5 rounded-full bg-yellow-400"></div>
+                <div className="h-2.5 w-2.5 rounded-full bg-emerald-400"></div>
               </div>
               {/* The Actual Video */}
               <video 
                 autoPlay 
-                muted 
+                muted={true} 
                 loop 
                 playsInline
-                className="w-full rounded-lg border border-zinc-200 bg-white"
+                preload="auto"
+                className="w-full rounded-lg border border-zinc-200 bg-zinc-100"
               >
                 <source src="/Adv_p2p_1.mp4" type="video/mp4" />
               </video>
@@ -310,7 +311,7 @@ export default function LandingPage() {
       <footer className="bg-white py-12">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-zinc-500 font-medium">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Post 2 Post" className="w-6 h-6 rounded grayscale" />
+            <img src="/logo.png" alt="Post 2 Post" className="w-6 h-6 rounded" />
             <span className="font-bold text-zinc-900 tracking-tight">Post 2 Post</span>
           </div>
           <div className="flex gap-8">
