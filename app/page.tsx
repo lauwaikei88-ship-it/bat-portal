@@ -223,10 +223,9 @@ export default function LandingPage() {
 
               <ul className="space-y-5 mb-10 flex-1">
                 {[
-                  '3 social accounts',
-                  'Content calendar',
-                  'Multi-platform scheduling',
-                  'Post analytics',
+                  'Up to 3 social accounts',
+                  '5 posts a week',
+                  'Free sign up',
                 ].map(f => (
                   <li key={f} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
                     <div className="w-5 h-5 rounded-full bg-sky-100 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -261,8 +260,8 @@ export default function LandingPage() {
 
               <ul className="space-y-5 mb-10 flex-1 relative z-10">
                 {[
-                  '10 social accounts',
-                  'Everything in Beta Access',
+                  'Up to 10 social accounts',
+                  'Unlimited posts',
                   'Priority email support',
                 ].map(f => (
                   <li key={f} className="flex items-start gap-3 text-sm text-slate-800 font-bold">
