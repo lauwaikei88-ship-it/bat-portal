@@ -74,6 +74,7 @@ export default function LandingPage() {
 
       {/* ── HERO ── */}
       <section className="relative z-10 overflow-hidden pt-6 pb-10 md:pt-10 md:pb-12">
+        <div className="gumball-capsule"></div>
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-8">
 
           {/* Left copy */}
