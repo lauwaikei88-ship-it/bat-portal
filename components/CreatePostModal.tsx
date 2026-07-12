@@ -146,8 +146,18 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ fileName })
           });
+          
+          if (!presignRes.ok) {
+            const contentType = presignRes.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const presignData = await presignRes.json();
+              throw new Error(presignData.error || 'Failed to get upload URL');
+            } else {
+              const text = await presignRes.text();
+              throw new Error(`Presign API failed (${presignRes.status}): ${text.substring(0, 50)}`);
+            }
+          }
           const presignData = await presignRes.json();
-          if (!presignRes.ok) throw new Error(presignData.error || 'Failed to get upload URL');
 
           // 2. Upload directly to Supabase using the signed URL
           const { error } = await supabase.storage
@@ -188,8 +198,14 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
         });
 
         if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error);
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const data = await res.json();
+            throw new Error(data.error || 'Failed to schedule post');
+          } else {
+            const text = await res.text();
+            throw new Error(`Posts API failed (${res.status}): ${text.substring(0, 50)}`);
+          }
         }
       }
 
