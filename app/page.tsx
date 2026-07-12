@@ -87,25 +87,25 @@ export default function LandingPage() {
               Schedule your content across multiple social accounts with a tool that feels as refreshing as breathing clear air.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-10">
+            <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-4 mb-10">
               <Link href="/signup"
                 className={`inline-flex items-center justify-center gap-2 px-8 py-4 text-base ${primaryButton}`}>
                 Get started free
                 <ArrowRight size={18} />
               </Link>
-            </div>
-
-            {/* Platforms row */}
-            <div className="flex items-center gap-6 bg-slate-50 rounded-2xl border border-slate-200 p-4 inline-flex">
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Works with</span>
-              <div className="w-px h-4 bg-slate-300/50"></div>
-              <FbIcon />
-              <IgIcon />
+              
+              {/* Platforms row */}
+              <div className="flex items-center gap-4 bg-slate-50 rounded-2xl border border-slate-200 px-6 py-4">
+                <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Works with</span>
+                <div className="w-px h-4 bg-slate-300/50"></div>
+                <FbIcon />
+                <IgIcon />
+              </div>
             </div>
           </div>
 
           {/* Right: Video Frame Mockup */}
-          <div className="flex-1 w-full relative perspective-1000">
+          <div className="flex-1 w-full max-w-lg mx-auto relative perspective-1000">
             {/* Ambient glow behind mockup */}
             <div className="absolute inset-0 bg-slate-100 rounded-[3rem] blur-3xl opacity-50"></div>
             
@@ -295,7 +295,8 @@ export default function LandingPage() {
               { q: "What is Post 2 Post?", a: "Post 2 Post is a lite social media manager tool that allows you to easily schedule and cross-post content, mainly focusing on Facebook and Instagram feed and story." },
               { q: "Is the beta program free?", a: "We are a tester program now, open to 50 testers for now. When we hit the quota, we will upgrade to a new domain website and a better domain." },
               { q: "Which platforms are supported?", a: "Currently, we mainly focus on Facebook and Instagram." },
-              { q: "Is there a limit on how many posts I can schedule?", a: "We give 5 posts a week that can be posted to either Facebook or Instagram." }
+              { q: "Is there a limit on how many posts I can schedule?", a: "We give 5 posts a week that can be posted to either Facebook or Instagram." },
+              { q: "How can I upgrade to a Pro account?", a: "If you feel like upgrading to a pro account, please email us at airdriveteam@outlook.com." }
             ].map((faq, i) => (
               <div key={i} className={`${acrylicCard} p-6`}>
                 <h3 className="font-bold text-slate-800 text-lg mb-2">{faq.q}</h3>
@@ -307,21 +308,21 @@ export default function LandingPage() {
       </section>
 
       {/* ── FINAL CTA ── */}
-      <section className="py-8 md:py-12 relative z-10">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className={`${acrylicCard} p-10 md:p-16`}>
-            <h2 className="text-4xl md:text-6xl font-extrabold text-slate-800 tracking-tight mb-6">
+      <section className="py-6 md:py-8 relative z-10">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <div className={`${acrylicCard} p-8 md:p-12`}>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-800 tracking-tight mb-4">
               Ready to get started?
             </h2>
-            <p className="text-slate-500 mb-10 text-xl font-medium max-w-2xl mx-auto">
+            <p className="text-slate-500 mb-8 text-lg font-medium max-w-xl mx-auto">
               Join {testerCount !== null ? testerCount : '...'} creators already in the beta.
               {spotsLeft !== null && ` Only ${spotsLeft} spots left.`}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/signup"
-                className={`inline-flex items-center justify-center gap-2 px-10 py-5 text-lg ${primaryButton}`}>
+                className={`inline-flex items-center justify-center gap-2 px-8 py-4 text-base ${primaryButton}`}>
                 Sign up for free
-                <ArrowRight size={20} />
+                <ArrowRight size={18} />
               </Link>
             </div>
           </div>
