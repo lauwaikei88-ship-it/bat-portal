@@ -162,12 +162,16 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
           }
 
           // 2. Upload directly to Supabase using the signed URL
-          const { error } = await supabase.storage
-            .from('media')
-            .uploadToSignedUrl(presignData.path, presignData.token, file);
-
-          if (error) {
-            throw new Error(`Upload failed: ${error.message}`);
+          try {
+            const { error: uploadErr } = await supabase.storage
+              .from('media')
+              .uploadToSignedUrl(presignData.path, presignData.token, file);
+              
+            if (uploadErr) {
+              throw new Error(`Upload failed: ${uploadErr.message}`);
+            }
+          } catch (uploadException: any) {
+            throw new Error(`Supabase Storage Upload failed: ${uploadException.message}`);
           }
 
           // 3. Get the public URL
@@ -216,7 +220,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
       setUploadPreviews([]);
     } catch (e: any) {
       console.error(e);
-      alert('Failed to schedule post: ' + e.message);
+      alert('[v2] Failed to schedule post: ' + e.message);
     }
     setIsSubmitting(false);
   };
