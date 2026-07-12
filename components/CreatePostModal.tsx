@@ -5,6 +5,15 @@ import { format, addDays } from 'date-fns';
 import { useAccounts } from '@/lib/account-context';
 import { createClient } from '@/lib/supabase-browser';
 
+async function safeJson(res: Response) {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    throw new Error(`Expected JSON but got HTML/text (Status: ${res.status}). Response preview: ${text.substring(0, 100)}`);
+  }
+}
+
 interface CreatePostModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -69,7 +78,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: aiPrompt })
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (res.ok) {
         setPreviewUrl(data.url);
       } else {
@@ -91,7 +100,7 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: aiPrompt || caption || 'A beautiful day' })
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (res.ok) {
         setCaption(data.caption);
       } else {
@@ -147,17 +156,10 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
             body: JSON.stringify({ fileName })
           });
           
+          const presignData = await safeJson(presignRes);
           if (!presignRes.ok) {
-            const contentType = presignRes.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-              const presignData = await presignRes.json();
-              throw new Error(presignData.error || 'Failed to get upload URL');
-            } else {
-              const text = await presignRes.text();
-              throw new Error(`Presign API failed (${presignRes.status}): ${text.substring(0, 50)}`);
-            }
+            throw new Error(presignData.error || 'Failed to get upload URL');
           }
-          const presignData = await presignRes.json();
 
           // 2. Upload directly to Supabase using the signed URL
           const { error } = await supabase.storage
@@ -198,14 +200,8 @@ export default function CreatePostModal({ isOpen, onClose, onPostCreated }: Crea
         });
 
         if (!res.ok) {
-          const contentType = res.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
-            const data = await res.json();
-            throw new Error(data.error || 'Failed to schedule post');
-          } else {
-            const text = await res.text();
-            throw new Error(`Posts API failed (${res.status}): ${text.substring(0, 50)}`);
-          }
+          const data = await safeJson(res);
+          throw new Error(data.error || 'Failed to schedule post');
         }
       }
 
