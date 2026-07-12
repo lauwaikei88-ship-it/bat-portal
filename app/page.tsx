@@ -39,16 +39,12 @@ export default function LandingPage() {
 
   // Reusable acrylic class
   const acrylicCard = "bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(31,38,135,0.05)] rounded-[2.5rem] relative overflow-hidden";
-  const acrylicButton = "bg-white/50 backdrop-blur-md border border-white/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:bg-white/80 hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-300 text-slate-700 font-semibold rounded-2xl";
-  const primaryButton = "bg-gradient-to-r from-sky-400 to-teal-400 text-white font-bold shadow-[0_8px_24px_rgba(56,189,248,0.3)] hover:shadow-[0_12px_32px_rgba(56,189,248,0.5)] hover:-translate-y-1 transition-all duration-300 rounded-2xl";
+  const acrylicButton = "bg-white/50 backdrop-blur-md border border-white/80 shadow-sm hover:bg-white/80 hover:shadow transition-all duration-300 text-slate-700 font-semibold rounded-2xl";
+  const primaryButton = "bg-sky-500 text-white font-bold shadow-sm hover:bg-sky-600 hover:shadow hover:-translate-y-1 transition-all duration-300 rounded-2xl";
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F4FBFC] text-slate-800 font-sans selection:bg-sky-200 selection:text-sky-900 relative">
       
-      {/* ── BACKGROUND BLOBS FOR GLASS EFFECT ── */}
-      <div className="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-sky-200/40 rounded-full mix-blend-multiply filter blur-[120px] opacity-70 animate-pulse pointer-events-none" style={{ animationDuration: '10s' }}></div>
-      <div className="fixed bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-teal-200/40 rounded-full mix-blend-multiply filter blur-[120px] opacity-70 animate-pulse pointer-events-none" style={{ animationDuration: '12s', animationDelay: '2s' }}></div>
-
       {/* ── GLOBAL ANNOUNCEMENT BAR ── */}
       <div className="bg-white/30 backdrop-blur-md border-b border-white/40 text-teal-700 text-xs font-bold text-center py-2.5 px-4 tracking-wide z-50 relative flex justify-center items-center gap-2">
         <Sparkles size={14} className="text-teal-500" />
@@ -59,12 +55,12 @@ export default function LandingPage() {
       {/* ── NAV ── */}
       <header className="sticky top-0 z-40 px-6 py-4">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(31,38,135,0.03)] rounded-3xl px-6 py-3 flex justify-between items-center">
+          <div className="bg-white/40 backdrop-blur-2xl border border-white/60 shadow-sm rounded-3xl px-6 py-3 flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-300 to-teal-300 flex items-center justify-center shadow-inner">
+              <div className="w-10 h-10 rounded-2xl bg-sky-100 flex items-center justify-center shadow-inner">
                 <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-xl opacity-90 mix-blend-overlay" />
               </div>
-              <span className="font-extrabold text-slate-800 text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-500">Post 2 Post</span>
+              <span className="font-extrabold text-slate-800 text-xl tracking-tight">Post 2 Post</span>
             </div>
             <div className="flex items-center gap-3">
               <Link href="/login"
@@ -81,34 +77,25 @@ export default function LandingPage() {
       </header>
 
       {/* ── HERO ── */}
-      <section className="relative z-10 overflow-hidden pt-12 pb-24 md:pt-20 md:pb-32">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-16">
+      <section className="relative z-10 overflow-hidden pt-8 pb-12 md:pt-12 md:pb-16">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
 
           {/* Left copy */}
           <div className="flex-1 text-left relative z-10">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 backdrop-blur-md border border-white/60 text-sky-600 text-xs font-bold uppercase tracking-wider mb-8 shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
-              The Clear Capsule Vibe
-            </div>
-            
-            <h1 className="text-6xl md:text-8xl font-extrabold text-slate-800 leading-[1.05] tracking-tighter mb-8">
+            <h1 className="text-6xl md:text-8xl font-extrabold text-slate-800 leading-[1.05] tracking-tighter mb-6">
               Plan once,<br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-teal-400">post anytime.</span>
+              <span className="text-sky-500">post anytime.</span>
             </h1>
 
-            <p className="text-xl text-slate-500 mb-10 max-w-lg leading-relaxed font-medium">
+            <p className="text-xl text-slate-500 mb-8 max-w-lg leading-relaxed font-medium">
               Schedule your content across multiple social accounts with a tool that feels as refreshing as breathing clear air.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
+            <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <Link href="/signup"
                 className={`inline-flex items-center justify-center gap-2 px-8 py-4 text-base ${primaryButton}`}>
                 Get started free
                 <ArrowRight size={18} />
-              </Link>
-              <Link href="/login"
-                className={`inline-flex items-center justify-center px-8 py-4 text-base ${acrylicButton}`}>
-                View Demo
               </Link>
             </div>
 
@@ -125,7 +112,7 @@ export default function LandingPage() {
           {/* Right: Video Frame Mockup */}
           <div className="flex-1 w-full relative perspective-1000">
             {/* Ambient glow behind mockup */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-sky-300 to-teal-300 rounded-[3rem] blur-3xl opacity-30"></div>
+            <div className="absolute inset-0 bg-sky-200 rounded-[3rem] blur-3xl opacity-30"></div>
             
             <div className={`p-3 transform rotate-2 hover:rotate-0 transition-transform duration-700 ease-out ${acrylicCard}`}>
               {/* Highlight gleam */}
@@ -157,9 +144,9 @@ export default function LandingPage() {
       </section>
 
       {/* ── HOW IT WORKS (Bento Grid) ── */}
-      <section className="py-24 relative z-10">
+      <section className="py-12 md:py-16 relative z-10">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-16 text-center">
+          <div className="mb-10 text-center">
             <h2 className="text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight mb-4">How it works</h2>
             <p className="text-slate-500 max-w-xl mx-auto text-lg font-medium">Three simple steps — from setup to your first scheduled post, wrapped in clear acrylic.</p>
           </div>
@@ -212,7 +199,7 @@ export default function LandingPage() {
               <p className="text-base text-slate-500 mb-8 font-medium">Your post goes live automatically.</p>
               
               <div className="mt-auto bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-sm">
-                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-300 to-emerald-400 text-white flex items-center justify-center mb-4 shadow-[0_8px_16px_rgba(52,211,153,0.3)] group-hover:scale-110 transition-transform duration-500">
+                 <div className="w-16 h-16 rounded-full bg-teal-500 text-white flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform duration-500">
                    <Send size={24} className="ml-1" />
                  </div>
                  <div className="text-base font-bold text-slate-800">Ready for Launch</div>
@@ -225,14 +212,14 @@ export default function LandingPage() {
       </section>
 
       {/* ── PRICING ── */}
-      <section className="py-32 relative z-10">
+      <section className="py-12 md:py-16 relative z-10">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-20 text-center">
+          <div className="mb-10 text-center">
             <h2 className="text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight mb-4">Simple pricing</h2>
             <p className="text-slate-500 text-lg font-medium">Start free. Upgrade when you need more power.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 items-center max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8 items-center max-w-4xl mx-auto mt-8">
 
             {/* Free */}
             <div className={`${acrylicCard} p-10 flex flex-col hover:-translate-y-1 transition-transform duration-300`}>
@@ -262,17 +249,17 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Yearly — Pro Card (Slightly larger, primary colors) */}
-            <div className={`${acrylicCard} p-10 flex flex-col relative md:scale-105 shadow-[0_16px_40px_rgba(56,189,248,0.15)] z-10 border-white/80 bg-white/60`}>
+            {/* Yearly — Pro Card */}
+            <div className={`${acrylicCard} p-10 flex flex-col relative md:scale-105 shadow-md z-10 border-white/80 bg-white/60 !overflow-visible`}>
               {/* Gleam effect */}
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/60 to-transparent pointer-events-none"></div>
+              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/60 to-transparent pointer-events-none rounded-[2.5rem]"></div>
 
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-sky-400 to-teal-400 shadow-lg uppercase tracking-widest">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-bold text-white bg-sky-500 shadow-sm uppercase tracking-widest">
                 Most popular
               </div>
               
-              <div className="text-xs font-bold uppercase tracking-widest text-teal-600 mb-4 bg-teal-50 inline-block px-3 py-1 rounded-full self-start">Pro — Yearly</div>
-              <div className="flex items-baseline gap-1 mb-2">
+              <div className="text-xs font-bold uppercase tracking-widest text-teal-600 mb-4 bg-teal-50 inline-block px-3 py-1 rounded-full self-start relative z-10">Pro — Yearly</div>
+              <div className="flex items-baseline gap-1 mb-2 relative z-10">
                 <span className="text-5xl font-extrabold text-slate-800 tracking-tight">$30</span>
                 <span className="text-slate-400 text-sm font-bold uppercase tracking-widest">/ year</span>
               </div>
@@ -285,7 +272,7 @@ export default function LandingPage() {
                   'Priority email support',
                 ].map(f => (
                   <li key={f} className="flex items-start gap-3 text-sm text-slate-800 font-bold">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-r from-sky-400 to-teal-400 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                    <div className="w-5 h-5 rounded-full bg-sky-500 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
                       <Plus size={14} className="text-white" strokeWidth={3} />
                     </div>
                     {f}
@@ -300,40 +287,12 @@ export default function LandingPage() {
               </a>
             </div>
 
-            {/* Agency */}
-            <div className={`${acrylicCard} p-10 flex flex-col hover:-translate-y-1 transition-transform duration-300`}>
-              <div className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4 bg-slate-100 inline-block px-3 py-1 rounded-full self-start">Agency</div>
-              <div className="text-5xl font-extrabold text-slate-800 tracking-tight mb-2">Custom</div>
-              <p className="text-base text-slate-500 mb-8 font-medium">Need more than 10 accounts?</p>
-
-              <ul className="space-y-5 mb-10 flex-1">
-                {[
-                  'Unlimited social accounts',
-                  'Everything in Pro',
-                  'Custom setup support',
-                ].map(f => (
-                  <li key={f} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
-                    <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check size={12} className="text-slate-600" strokeWidth={3} />
-                    </div>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <a href="mailto:hello@post2post.app?subject=Agency Plan"
-                className={`flex items-center justify-center gap-2 px-5 py-3.5 text-base ${acrylicButton}`}>
-                <Mail size={18} />
-                Email us
-              </a>
-            </div>
-
           </div>
         </div>
       </section>
 
       {/* ── FINAL CTA ── */}
-      <section className="py-32 relative z-10">
+      <section className="py-12 md:py-16 relative z-10">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <div className={`${acrylicCard} p-16 md:p-24`}>
             <h2 className="text-4xl md:text-6xl font-extrabold text-slate-800 tracking-tight mb-6">
@@ -359,7 +318,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="bg-white/30 backdrop-blur-md border border-white/50 rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-slate-500 font-medium">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-300 to-teal-300 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-sky-100 flex items-center justify-center">
                 <img src="/logo.png" alt="Logo" className="w-6 h-6 rounded-lg opacity-90 mix-blend-overlay" />
               </div>
               <span className="font-bold text-slate-800 tracking-tight text-base">Post 2 Post</span>
