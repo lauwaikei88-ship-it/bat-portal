@@ -37,41 +37,37 @@ export default function LandingPage() {
 
   const spotsLeft = testerCount !== null ? Math.max(0, 50 - testerCount) : null;
 
-  // Reusable acrylic class
-  const acrylicCard = "bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(31,38,135,0.05)] rounded-[2.5rem] relative overflow-hidden";
-  const acrylicButton = "bg-white/50 backdrop-blur-md border border-white/80 shadow-sm hover:bg-white/80 hover:shadow transition-all duration-300 text-slate-700 font-semibold rounded-2xl";
+  // Reusable card class for crystal white aesthetic
+  const acrylicCard = "bg-white border border-slate-200 shadow-sm rounded-[2rem] relative";
+  const acrylicButton = "bg-white border border-slate-200 shadow-sm hover:bg-slate-50 hover:shadow transition-all duration-300 text-slate-700 font-semibold rounded-2xl";
   const primaryButton = "bg-sky-500 text-white font-bold shadow-sm hover:bg-sky-600 hover:shadow hover:-translate-y-1 transition-all duration-300 rounded-2xl";
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F4FBFC] text-slate-800 font-sans selection:bg-sky-200 selection:text-sky-900 relative">
+    <div className="min-h-screen flex flex-col bg-white text-slate-800 font-sans selection:bg-sky-200 selection:text-sky-900 relative">
       
       {/* ── GLOBAL ANNOUNCEMENT BAR ── */}
-      <div className="bg-white/30 backdrop-blur-md border-b border-white/40 text-teal-700 text-xs font-bold text-center py-2.5 px-4 tracking-wide z-50 relative flex justify-center items-center gap-2">
+      <div className="bg-slate-50 border-b border-slate-100 text-teal-700 text-xs font-bold text-center py-2.5 px-4 tracking-wide z-50 relative flex justify-center items-center gap-2">
         <Sparkles size={14} className="text-teal-500" />
         Beta Program — Only {spotsLeft !== null ? spotsLeft : '...'} spots remaining
         <Sparkles size={14} className="text-teal-500" />
       </div>
 
       {/* ── NAV ── */}
-      <header className="sticky top-0 z-40 px-6 py-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-white/40 backdrop-blur-2xl border border-white/60 shadow-sm rounded-3xl px-6 py-3 flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-sky-100 flex items-center justify-center shadow-inner">
-                <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-xl opacity-90 mix-blend-overlay" />
-              </div>
-              <span className="font-extrabold text-slate-800 text-xl tracking-tight">Post 2 Post</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link href="/login"
-                className={`px-6 py-2.5 text-sm ${acrylicButton}`}>
-                Log in
-              </Link>
-              <Link href="/signup"
-                className={`px-6 py-2.5 text-sm ${primaryButton}`}>
-                Sign up free
-              </Link>
-            </div>
+      <header className="sticky top-0 z-40 px-6 py-4 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="Logo" className="w-9 h-9 rounded-xl object-contain shadow-sm border border-slate-100" />
+            <span className="font-extrabold text-slate-800 text-xl tracking-tight">Post 2 Post</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/login"
+              className={`px-6 py-2.5 text-sm ${acrylicButton}`}>
+              Log in
+            </Link>
+            <Link href="/signup"
+              className={`px-6 py-2.5 text-sm ${primaryButton}`}>
+              Sign up free
+            </Link>
           </div>
         </div>
       </header>
@@ -100,7 +96,7 @@ export default function LandingPage() {
             </div>
 
             {/* Platforms row */}
-            <div className="flex items-center gap-6 bg-white/30 backdrop-blur-md rounded-2xl border border-white/50 p-4 inline-flex">
+            <div className="flex items-center gap-6 bg-slate-50 rounded-2xl border border-slate-200 p-4 inline-flex">
               <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Works with</span>
               <div className="w-px h-4 bg-slate-300/50"></div>
               <IgIcon />
@@ -112,11 +108,9 @@ export default function LandingPage() {
           {/* Right: Video Frame Mockup */}
           <div className="flex-1 w-full relative perspective-1000">
             {/* Ambient glow behind mockup */}
-            <div className="absolute inset-0 bg-sky-200 rounded-[3rem] blur-3xl opacity-30"></div>
+            <div className="absolute inset-0 bg-slate-100 rounded-[3rem] blur-3xl opacity-50"></div>
             
             <div className={`p-3 transform rotate-2 hover:rotate-0 transition-transform duration-700 ease-out ${acrylicCard}`}>
-              {/* Highlight gleam */}
-              <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-white/60 to-transparent pointer-events-none rounded-t-[2.5rem]"></div>
               
               {/* Browser Top Bar */}
               <div className="flex gap-2 pb-3 pl-3 pt-2">
@@ -125,7 +119,7 @@ export default function LandingPage() {
                 <div className="h-3 w-3 rounded-full bg-slate-200/80 shadow-sm border border-slate-100"></div>
               </div>
               {/* The Actual Video */}
-              <div className="relative rounded-[1.5rem] overflow-hidden border border-white/40 shadow-inner">
+              <div className="relative rounded-[1.5rem] overflow-hidden border border-slate-200 shadow-inner">
                 <video 
                   autoPlay 
                   muted={true} 
@@ -160,10 +154,10 @@ export default function LandingPage() {
               <div className="text-slate-800 font-extrabold text-2xl mb-2">1. Connect</div>
               <p className="text-base text-slate-500 mb-8 font-medium">Link your pages in seconds.</p>
               
-              <div className="mt-auto relative bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-6 flex flex-col items-center justify-center gap-5 shadow-sm">
+              <div className="mt-auto relative bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center gap-5 shadow-sm">
                  <div className="flex gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-white/80 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-500"><IgIcon /></div>
-                    <div className="w-12 h-12 rounded-2xl bg-white/80 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-500 delay-75"><FbIcon /></div>
+                    <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-500"><IgIcon /></div>
+                    <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-500 delay-75"><FbIcon /></div>
                  </div>
                  <button className={`px-5 py-2.5 text-sm w-full ${primaryButton}`}>Connect Accounts</button>
               </div>
@@ -176,15 +170,15 @@ export default function LandingPage() {
               <div className="text-slate-800 font-extrabold text-2xl mb-2">2. Write</div>
               <p className="text-base text-slate-500 mb-8 font-medium">Type once, preview everywhere.</p>
               
-              <div className="mt-auto bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-5 shadow-sm">
-                <div className="border border-white/50 rounded-xl p-4 text-sm text-slate-500 mb-4 h-24 bg-white/30 shadow-inner">
+              <div className="mt-auto bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm">
+                <div className="border border-slate-200 rounded-xl p-4 text-sm text-slate-500 mb-4 h-24 bg-white shadow-inner">
                   Excited to share our latest update! <span className="text-xl">✨</span>
                   <span className="animate-pulse text-sky-400">|</span>
                 </div>
                 <div className="flex justify-between items-center px-1">
                    <div className="flex gap-2">
-                     <span className="w-5 h-5 rounded-full bg-white/80 shadow-sm"></span>
-                     <span className="w-5 h-5 rounded-full bg-white/80 shadow-sm"></span>
+                     <span className="w-5 h-5 rounded-full bg-white border border-slate-200 shadow-sm"></span>
+                     <span className="w-5 h-5 rounded-full bg-white border border-slate-200 shadow-sm"></span>
                    </div>
                    <div className="text-[11px] font-bold text-sky-600 uppercase tracking-wider bg-sky-100/50 px-2 py-1 rounded-md">Tomorrow 9AM</div>
                 </div>
@@ -198,7 +192,7 @@ export default function LandingPage() {
               <div className="text-slate-800 font-extrabold text-2xl mb-2">3. Done</div>
               <p className="text-base text-slate-500 mb-8 font-medium">Your post goes live automatically.</p>
               
-              <div className="mt-auto bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-sm">
+              <div className="mt-auto bg-slate-50 border border-slate-200 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-sm">
                  <div className="w-16 h-16 rounded-full bg-teal-500 text-white flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform duration-500">
                    <Send size={24} className="ml-1" />
                  </div>
@@ -250,9 +244,9 @@ export default function LandingPage() {
             </div>
 
             {/* Yearly — Pro Card */}
-            <div className={`${acrylicCard} p-10 flex flex-col relative md:scale-105 shadow-md z-10 border-white/80 bg-white/60 !overflow-visible`}>
-              {/* Gleam effect */}
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/60 to-transparent pointer-events-none rounded-[2.5rem]"></div>
+            <div className={`${acrylicCard} p-10 flex flex-col relative md:scale-105 shadow-lg z-10 border-sky-100 bg-white !overflow-visible`}>
+              {/* Highlight border top */}
+              <div className="absolute top-0 left-0 w-full h-1 bg-sky-400 rounded-t-[2rem]"></div>
 
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-bold text-white bg-sky-500 shadow-sm uppercase tracking-widest">
                 Most popular
@@ -316,11 +310,9 @@ export default function LandingPage() {
       {/* ── FOOTER ── */}
       <footer className="relative z-10 pb-12 pt-8">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="bg-white/30 backdrop-blur-md border border-white/50 rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-slate-500 font-medium">
+          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-slate-500 font-medium">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-sky-100 flex items-center justify-center">
-                <img src="/logo.png" alt="Logo" className="w-6 h-6 rounded-lg opacity-90 mix-blend-overlay" />
-              </div>
+              <img src="/logo.png" alt="Logo" className="w-7 h-7 rounded-lg object-contain shadow-sm border border-slate-100" />
               <span className="font-bold text-slate-800 tracking-tight text-base">Post 2 Post</span>
             </div>
             <div className="flex gap-8">
@@ -329,7 +321,7 @@ export default function LandingPage() {
               <a href="mailto:hello@post2post.app" className="hover:text-sky-600 transition-colors">Contact</a>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-white/50 border border-white/60 rounded-full px-4 py-1.5 shadow-sm">
+              <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">
                 <span className="w-2.5 h-2.5 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.6)] animate-pulse"></span>
                 <span className="text-xs font-bold text-slate-700">All systems operational</span>
               </div>
