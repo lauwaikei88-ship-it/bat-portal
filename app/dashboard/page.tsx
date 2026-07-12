@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useRef, useEffect, SVGProps } from 'react';
-import { Upload, Trash2, Send, ImageIcon, Video } from 'lucide-react';
+import { Upload, Trash2, Send, ImageIcon, Video, Crop } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import { useAccounts } from '@/lib/account-context';
 import { MentionTextarea } from '@/components/MentionTextarea';
+import ImageCropper from '@/components/ImageCropper';
 
 const Facebook = (props: SVGProps<SVGSVGElement> & { size?: number }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
@@ -144,6 +145,7 @@ export default function Dashboard() {
   const [files, setFiles] = useState<File[]>([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["ig_feed"]);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [editingImageIndex, setEditingImageIndex] = useState<number | null>(null);
   
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -193,6 +195,28 @@ export default function Dashboard() {
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSaveCrop = (croppedFile: File, croppedUrl: string) => {
+    if (editingImageIndex === null) return;
+    
+    setFiles(prev => {
+      const newFiles = [...prev];
+      newFiles[editingImageIndex] = croppedFile;
+      return newFiles;
+    });
+
+    setImagePreviews(prev => {
+      const newPreviews = [...prev];
+      // Revoke old URL to avoid memory leak if it was an object URL
+      if (newPreviews[editingImageIndex].startsWith('blob:')) {
+        URL.revokeObjectURL(newPreviews[editingImageIndex]);
+      }
+      newPreviews[editingImageIndex] = croppedUrl;
+      return newPreviews;
+    });
+
+    setEditingImageIndex(null);
   };
 
   const handleImageDropReorder = (targetIndex: number) => {
@@ -399,19 +423,31 @@ export default function Dashboard() {
                           e.stopPropagation();
                           handleImageDropReorder(idx);
                         }}
-                        className={`relative rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 w-32 h-32 border border-slate-200 cursor-move transition-transform ${draggedIndex === idx ? 'opacity-50 scale-95' : 'hover:scale-[1.02]'}`}
+                        className={`group relative rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 w-32 h-32 border border-slate-200 cursor-move transition-transform ${draggedIndex === idx ? 'opacity-50 scale-95' : 'hover:scale-[1.02]'}`}
                       >
                         {files[idx]?.type?.startsWith('video/') ? (
                           <video src={preview} className="w-full h-full object-cover" />
                         ) : (
                           <img src={preview} alt="Upload preview" className="w-full h-full object-cover" />
                         )}
-                        <button
-                          onClick={() => removeFile(idx)}
-                          className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-600 hover:text-red-500 shadow-sm transition-colors"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <div className="absolute top-2 right-2 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {!files[idx]?.type?.startsWith('video/') && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setEditingImageIndex(idx); }}
+                              className="p-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-600 hover:text-blue-500 shadow-sm transition-colors"
+                              title="Crop image"
+                            >
+                              <Crop size={14} />
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
+                            className="p-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-600 hover:text-red-500 shadow-sm transition-colors"
+                            title="Remove media"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -537,6 +573,15 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {editingImageIndex !== null && (
+        <ImageCropper
+          imageSrc={imagePreviews[editingImageIndex]}
+          fileName={files[editingImageIndex]?.name || 'cropped.jpg'}
+          onClose={() => setEditingImageIndex(null)}
+          onCropComplete={handleSaveCrop}
+        />
+      )}
     </div>
   );
 }
