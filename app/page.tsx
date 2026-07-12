@@ -2,23 +2,23 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Mail, Plus, Check } from 'lucide-react';
+import { ArrowRight, Mail, Plus, Check, Sparkles, Send } from 'lucide-react';
 
 // Brand icons as inline SVGs
 const IgIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400 hover:text-[#E1306C] transition-colors">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 hover:text-pink-500 transition-colors duration-300">
     <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
     <circle cx="12" cy="12" r="4" />
     <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
   </svg>
 );
 const FbIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400 hover:text-[#1877F2] transition-colors">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 hover:text-sky-500 transition-colors duration-300">
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
   </svg>
 );
 const XIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-zinc-400 hover:text-black transition-colors">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-slate-400 hover:text-slate-800 transition-colors duration-300">
     <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
   </svg>
 );
@@ -37,64 +37,85 @@ export default function LandingPage() {
 
   const spotsLeft = testerCount !== null ? Math.max(0, 50 - testerCount) : null;
 
+  // Reusable acrylic class
+  const acrylicCard = "bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(31,38,135,0.05)] rounded-[2.5rem] relative overflow-hidden";
+  const acrylicButton = "bg-white/50 backdrop-blur-md border border-white/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:bg-white/80 hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-300 text-slate-700 font-semibold rounded-2xl";
+  const primaryButton = "bg-gradient-to-r from-sky-400 to-teal-400 text-white font-bold shadow-[0_8px_24px_rgba(56,189,248,0.3)] hover:shadow-[0_12px_32px_rgba(56,189,248,0.5)] hover:-translate-y-1 transition-all duration-300 rounded-2xl";
+
   return (
-    <div className="min-h-screen flex flex-col bg-white text-zinc-900 selection:bg-zinc-200">
+    <div className="min-h-screen flex flex-col bg-[#F4FBFC] text-slate-800 font-sans selection:bg-sky-200 selection:text-sky-900 relative">
       
+      {/* ── BACKGROUND BLOBS FOR GLASS EFFECT ── */}
+      <div className="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-sky-200/40 rounded-full mix-blend-multiply filter blur-[120px] opacity-70 animate-pulse pointer-events-none" style={{ animationDuration: '10s' }}></div>
+      <div className="fixed bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-teal-200/40 rounded-full mix-blend-multiply filter blur-[120px] opacity-70 animate-pulse pointer-events-none" style={{ animationDuration: '12s', animationDelay: '2s' }}></div>
+
       {/* ── GLOBAL ANNOUNCEMENT BAR ── */}
-      <div className="bg-emerald-500 text-white text-xs font-bold text-center py-2 px-4 tracking-wide z-50 relative">
+      <div className="bg-white/30 backdrop-blur-md border-b border-white/40 text-teal-700 text-xs font-bold text-center py-2.5 px-4 tracking-wide z-50 relative flex justify-center items-center gap-2">
+        <Sparkles size={14} className="text-teal-500" />
         Beta Program — Only {spotsLeft !== null ? spotsLeft : '...'} spots remaining
+        <Sparkles size={14} className="text-teal-500" />
       </div>
 
       {/* ── NAV ── */}
-      <header className="border-b border-zinc-200 bg-white sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Post 2 Post" className="w-8 h-8 rounded-lg" />
-            <span className="font-extrabold text-zinc-900 text-lg tracking-tight">Post 2 Post</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link href="/login"
-              className="px-5 py-2.5 text-sm font-semibold text-zinc-900 hover:bg-zinc-100 rounded-lg transition-colors active:scale-[0.98]">
-              Log in
-            </Link>
-            <Link href="/signup"
-              className="px-5 py-2.5 text-sm font-semibold text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-all active:scale-[0.98]">
-              Sign up free
-            </Link>
+      <header className="sticky top-0 z-40 px-6 py-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_4px_24px_rgba(31,38,135,0.03)] rounded-3xl px-6 py-3 flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-300 to-teal-300 flex items-center justify-center shadow-inner">
+                <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-xl opacity-90 mix-blend-overlay" />
+              </div>
+              <span className="font-extrabold text-slate-800 text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-500">Post 2 Post</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link href="/login"
+                className={`px-6 py-2.5 text-sm ${acrylicButton}`}>
+                Log in
+              </Link>
+              <Link href="/signup"
+                className={`px-6 py-2.5 text-sm ${primaryButton}`}>
+                Sign up free
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
       {/* ── HERO ── */}
-      <section className="bg-white border-b border-zinc-200 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 py-24 md:py-32 flex flex-col md:flex-row items-center gap-16">
+      <section className="relative z-10 overflow-hidden pt-12 pb-24 md:pt-20 md:pb-32">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-16">
 
           {/* Left copy */}
-          <div className="flex-1 text-left relative z-10 transition-all duration-1000 ease-out translate-y-0 opacity-100">
-            <h1 className="text-5xl md:text-7xl font-extrabold text-zinc-900 leading-[1.05] tracking-tighter mb-6">
+          <div className="flex-1 text-left relative z-10">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 backdrop-blur-md border border-white/60 text-sky-600 text-xs font-bold uppercase tracking-wider mb-8 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+              The Clear Capsule Vibe
+            </div>
+            
+            <h1 className="text-6xl md:text-8xl font-extrabold text-slate-800 leading-[1.05] tracking-tighter mb-8">
               Plan once,<br />
-              post anytime.
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-teal-400">post anytime.</span>
             </h1>
 
-            <p className="text-lg text-zinc-500 mb-10 max-w-md leading-relaxed font-medium">
-              Schedule your content across multiple social accounts — all from one sleek command center.
+            <p className="text-xl text-slate-500 mb-10 max-w-lg leading-relaxed font-medium">
+              Schedule your content across multiple social accounts with a tool that feels as refreshing as breathing clear air.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-10">
+            <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <Link href="/signup"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-bold text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-zinc-200/50">
+                className={`inline-flex items-center justify-center gap-2 px-8 py-4 text-base ${primaryButton}`}>
                 Get started free
-                <ArrowRight size={16} />
+                <ArrowRight size={18} />
               </Link>
               <Link href="/login"
-                className="inline-flex items-center justify-center px-8 py-4 text-sm font-bold text-zinc-900 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 transition-all active:scale-[0.98]">
+                className={`inline-flex items-center justify-center px-8 py-4 text-base ${acrylicButton}`}>
                 View Demo
               </Link>
             </div>
 
             {/* Platforms row */}
-            <div className="flex items-center gap-5 text-zinc-400">
-              <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Works with</span>
+            <div className="flex items-center gap-6 bg-white/30 backdrop-blur-md rounded-2xl border border-white/50 p-4 inline-flex">
+              <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Works with</span>
+              <div className="w-px h-4 bg-slate-300/50"></div>
               <IgIcon />
               <FbIcon />
               <XIcon />
@@ -103,24 +124,32 @@ export default function LandingPage() {
 
           {/* Right: Video Frame Mockup */}
           <div className="flex-1 w-full relative perspective-1000">
-            <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-2 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.15)] transform rotate-1 hover:rotate-0 transition-transform duration-700 ease-out">
+            {/* Ambient glow behind mockup */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-sky-300 to-teal-300 rounded-[3rem] blur-3xl opacity-30"></div>
+            
+            <div className={`p-3 transform rotate-2 hover:rotate-0 transition-transform duration-700 ease-out ${acrylicCard}`}>
+              {/* Highlight gleam */}
+              <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-white/60 to-transparent pointer-events-none rounded-t-[2.5rem]"></div>
+              
               {/* Browser Top Bar */}
-              <div className="flex gap-1.5 pb-2 pl-2 pt-1">
-                <div className="h-2.5 w-2.5 rounded-full bg-red-400"></div>
-                <div className="h-2.5 w-2.5 rounded-full bg-yellow-400"></div>
-                <div className="h-2.5 w-2.5 rounded-full bg-emerald-400"></div>
+              <div className="flex gap-2 pb-3 pl-3 pt-2">
+                <div className="h-3 w-3 rounded-full bg-slate-200/80 shadow-sm border border-slate-100"></div>
+                <div className="h-3 w-3 rounded-full bg-slate-200/80 shadow-sm border border-slate-100"></div>
+                <div className="h-3 w-3 rounded-full bg-slate-200/80 shadow-sm border border-slate-100"></div>
               </div>
               {/* The Actual Video */}
-              <video 
-                autoPlay 
-                muted={true} 
-                loop 
-                playsInline
-                preload="auto"
-                className="w-full rounded-lg border border-zinc-200 bg-zinc-100"
-              >
-                <source src="/Adv_p2p_1.mp4" type="video/mp4" />
-              </video>
+              <div className="relative rounded-[1.5rem] overflow-hidden border border-white/40 shadow-inner">
+                <video 
+                  autoPlay 
+                  muted={true} 
+                  loop 
+                  playsInline
+                  preload="auto"
+                  className="w-full bg-white/20"
+                >
+                  <source src="/Adv_p2p_1.mp4" type="video/mp4" />
+                </video>
+              </div>
             </div>
           </div>
 
@@ -128,60 +157,66 @@ export default function LandingPage() {
       </section>
 
       {/* ── HOW IT WORKS (Bento Grid) ── */}
-      <section className="py-32 bg-white border-b border-zinc-200">
+      <section className="py-24 relative z-10">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-16">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-zinc-900 tracking-tight mb-4">How it works</h2>
-            <p className="text-zinc-500 max-w-xl text-lg font-medium">Three simple steps — from setup to your first scheduled post in minutes.</p>
+          <div className="mb-16 text-center">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight mb-4">How it works</h2>
+            <p className="text-slate-500 max-w-xl mx-auto text-lg font-medium">Three simple steps — from setup to your first scheduled post, wrapped in clear acrylic.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             
             {/* Box 1: Connect */}
-            <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-8 shadow-inner flex flex-col group hover:border-zinc-300 transition-colors">
-              <div className="text-zinc-900 font-extrabold text-xl mb-2">1. Connect</div>
-              <p className="text-sm text-zinc-500 mb-8 font-medium">Link your pages in seconds.</p>
+            <div className={`${acrylicCard} p-8 flex flex-col group hover:-translate-y-2 transition-all duration-500`}>
+              <div className="absolute -right-10 -top-10 w-32 h-32 bg-sky-200/30 rounded-full blur-2xl group-hover:bg-sky-300/40 transition-colors"></div>
               
-              <div className="mt-auto relative bg-white border border-zinc-200 rounded-xl p-6 flex flex-col items-center justify-center gap-4">
+              <div className="text-slate-800 font-extrabold text-2xl mb-2">1. Connect</div>
+              <p className="text-base text-slate-500 mb-8 font-medium">Link your pages in seconds.</p>
+              
+              <div className="mt-auto relative bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-6 flex flex-col items-center justify-center gap-5 shadow-sm">
                  <div className="flex gap-4">
-                    <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500"><IgIcon /></div>
-                    <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500"><FbIcon /></div>
+                    <div className="w-12 h-12 rounded-2xl bg-white/80 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-500"><IgIcon /></div>
+                    <div className="w-12 h-12 rounded-2xl bg-white/80 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-500 delay-75"><FbIcon /></div>
                  </div>
-                 <button className="px-4 py-2 bg-zinc-900 text-white text-xs font-bold rounded-lg w-full mt-2">Connect Accounts</button>
+                 <button className={`px-5 py-2.5 text-sm w-full ${primaryButton}`}>Connect Accounts</button>
               </div>
             </div>
 
             {/* Box 2: Write */}
-            <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-8 shadow-inner flex flex-col group hover:border-zinc-300 transition-colors">
-              <div className="text-zinc-900 font-extrabold text-xl mb-2">2. Write</div>
-              <p className="text-sm text-zinc-500 mb-8 font-medium">Type once, preview everywhere.</p>
+            <div className={`${acrylicCard} p-8 flex flex-col group hover:-translate-y-2 transition-all duration-500 delay-100`}>
+              <div className="absolute -right-10 -top-10 w-32 h-32 bg-teal-200/30 rounded-full blur-2xl group-hover:bg-teal-300/40 transition-colors"></div>
+
+              <div className="text-slate-800 font-extrabold text-2xl mb-2">2. Write</div>
+              <p className="text-base text-slate-500 mb-8 font-medium">Type once, preview everywhere.</p>
               
-              <div className="mt-auto bg-white border border-zinc-200 rounded-xl p-4">
-                <div className="border border-zinc-200 rounded-lg p-3 text-xs text-zinc-400 mb-3 h-20 bg-zinc-50 font-mono">
-                  Excited to share our latest update! 🚀
-                  <span className="animate-pulse">|</span>
+              <div className="mt-auto bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-5 shadow-sm">
+                <div className="border border-white/50 rounded-xl p-4 text-sm text-slate-500 mb-4 h-24 bg-white/30 shadow-inner">
+                  Excited to share our latest update! <span className="text-xl">✨</span>
+                  <span className="animate-pulse text-sky-400">|</span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center px-1">
                    <div className="flex gap-2">
-                     <span className="w-4 h-4 rounded-full bg-zinc-200"></span>
-                     <span className="w-4 h-4 rounded-full bg-zinc-200"></span>
+                     <span className="w-5 h-5 rounded-full bg-white/80 shadow-sm"></span>
+                     <span className="w-5 h-5 rounded-full bg-white/80 shadow-sm"></span>
                    </div>
-                   <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Tomorrow 9AM</div>
+                   <div className="text-[11px] font-bold text-sky-600 uppercase tracking-wider bg-sky-100/50 px-2 py-1 rounded-md">Tomorrow 9AM</div>
                 </div>
               </div>
             </div>
 
             {/* Box 3: Done */}
-            <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-8 shadow-inner flex flex-col group hover:border-zinc-300 transition-colors">
-              <div className="text-zinc-900 font-extrabold text-xl mb-2">3. Done</div>
-              <p className="text-sm text-zinc-500 mb-8 font-medium">Your post goes live automatically.</p>
+            <div className={`${acrylicCard} p-8 flex flex-col group hover:-translate-y-2 transition-all duration-500 delay-200`}>
+              <div className="absolute -right-10 -top-10 w-32 h-32 bg-emerald-200/30 rounded-full blur-2xl group-hover:bg-emerald-300/40 transition-colors"></div>
+
+              <div className="text-slate-800 font-extrabold text-2xl mb-2">3. Done</div>
+              <p className="text-base text-slate-500 mb-8 font-medium">Your post goes live automatically.</p>
               
-              <div className="mt-auto bg-white border border-zinc-200 rounded-xl p-6 flex flex-col items-center justify-center text-center">
-                 <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3">
-                   <Check size={24} strokeWidth={3} />
+              <div className="mt-auto bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-sm">
+                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-300 to-emerald-400 text-white flex items-center justify-center mb-4 shadow-[0_8px_16px_rgba(52,211,153,0.3)] group-hover:scale-110 transition-transform duration-500">
+                   <Send size={24} className="ml-1" />
                  </div>
-                 <div className="text-sm font-bold text-zinc-900">Success! Published</div>
-                 <div className="text-xs text-zinc-400 mt-1">3 platforms updated</div>
+                 <div className="text-base font-bold text-slate-800">Ready for Launch</div>
+                 <div className="text-sm text-teal-600 mt-1 font-medium bg-teal-50 px-3 py-1 rounded-full">3 platforms synced</div>
               </div>
             </div>
 
@@ -190,95 +225,105 @@ export default function LandingPage() {
       </section>
 
       {/* ── PRICING ── */}
-      <section className="py-32 bg-white border-b border-zinc-200">
+      <section className="py-32 relative z-10">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-16 text-center">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-zinc-900 tracking-tight mb-4">Simple pricing</h2>
-            <p className="text-zinc-500 text-lg font-medium">Start free. Upgrade when you need more.</p>
+          <div className="mb-20 text-center">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight mb-4">Simple pricing</h2>
+            <p className="text-slate-500 text-lg font-medium">Start free. Upgrade when you need more power.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 items-center max-w-5xl mx-auto">
 
             {/* Free */}
-            <div className="border border-zinc-200 rounded-2xl p-8 bg-zinc-50 flex flex-col hover:border-zinc-300 transition-colors">
-              <div className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-3">Beta Access</div>
-              <div className="text-4xl font-extrabold text-zinc-900 tracking-tight mb-2">Free</div>
-              <p className="text-sm text-zinc-500 mb-8 font-medium">Try it out during the beta.</p>
+            <div className={`${acrylicCard} p-10 flex flex-col hover:-translate-y-1 transition-transform duration-300`}>
+              <div className="text-xs font-bold uppercase tracking-widest text-sky-500 mb-4 bg-sky-50 inline-block px-3 py-1 rounded-full self-start">Beta Access</div>
+              <div className="text-5xl font-extrabold text-slate-800 tracking-tight mb-2">Free</div>
+              <p className="text-base text-slate-500 mb-8 font-medium">Try it out during the beta.</p>
 
-              <ul className="space-y-4 mb-8 flex-1">
+              <ul className="space-y-5 mb-10 flex-1">
                 {[
                   '3 social accounts',
                   'Content calendar',
                   'Multi-platform scheduling',
                   'Post analytics',
                 ].map(f => (
-                  <li key={f} className="flex items-start gap-3 text-sm text-zinc-700 font-medium">
-                    <Check size={16} className="text-zinc-900 mt-0.5 flex-shrink-0" strokeWidth={2.5} />
+                  <li key={f} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
+                    <div className="w-5 h-5 rounded-full bg-sky-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check size={12} className="text-sky-600" strokeWidth={3} />
+                    </div>
                     {f}
                   </li>
                 ))}
               </ul>
 
               <Link href="/signup"
-                className="flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-bold text-zinc-900 bg-white rounded-lg border border-zinc-200 hover:bg-zinc-50 transition-all active:scale-[0.98]">
+                className={`flex items-center justify-center gap-2 px-5 py-3.5 text-base ${acrylicButton}`}>
                 Get started free
               </Link>
             </div>
 
-            {/* Yearly — Pro Card (Slightly larger, 2px border) */}
-            <div className="border-2 border-zinc-900 rounded-2xl p-10 bg-white flex flex-col relative md:scale-105 shadow-xl z-10">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-bold text-white bg-zinc-900 uppercase tracking-widest">
+            {/* Yearly — Pro Card (Slightly larger, primary colors) */}
+            <div className={`${acrylicCard} p-10 flex flex-col relative md:scale-105 shadow-[0_16px_40px_rgba(56,189,248,0.15)] z-10 border-white/80 bg-white/60`}>
+              {/* Gleam effect */}
+              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/60 to-transparent pointer-events-none"></div>
+
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-sky-400 to-teal-400 shadow-lg uppercase tracking-widest">
                 Most popular
               </div>
-              <div className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-3">Pro — Yearly</div>
+              
+              <div className="text-xs font-bold uppercase tracking-widest text-teal-600 mb-4 bg-teal-50 inline-block px-3 py-1 rounded-full self-start">Pro — Yearly</div>
               <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-4xl font-extrabold text-zinc-900 tracking-tight">$30</span>
-                <span className="text-zinc-400 text-sm font-bold uppercase tracking-widest">/ year</span>
+                <span className="text-5xl font-extrabold text-slate-800 tracking-tight">$30</span>
+                <span className="text-slate-400 text-sm font-bold uppercase tracking-widest">/ year</span>
               </div>
-              <p className="text-sm text-zinc-500 mb-8 font-medium">Best value for serious creators.</p>
+              <p className="text-base text-slate-500 mb-8 font-medium relative z-10">Best value for serious creators.</p>
 
-              <ul className="space-y-4 mb-8 flex-1">
+              <ul className="space-y-5 mb-10 flex-1 relative z-10">
                 {[
                   '10 social accounts',
                   'Everything in Beta Access',
                   'Priority email support',
                 ].map(f => (
-                  <li key={f} className="flex items-start gap-3 text-sm text-zinc-900 font-medium">
-                    <Plus size={16} className="text-emerald-500 mt-0.5 flex-shrink-0" strokeWidth={3} />
+                  <li key={f} className="flex items-start gap-3 text-sm text-slate-800 font-bold">
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-r from-sky-400 to-teal-400 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                      <Plus size={14} className="text-white" strokeWidth={3} />
+                    </div>
                     {f}
                   </li>
                 ))}
               </ul>
 
               <a href="mailto:hello@post2post.app?subject=Pro Plan"
-                className="flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-bold text-zinc-900 bg-white border border-zinc-900 rounded-lg hover:bg-zinc-50 transition-all active:scale-[0.98]">
-                <Mail size={16} />
+                className={`flex items-center justify-center gap-2 px-5 py-3.5 text-base relative z-10 ${primaryButton}`}>
+                <Mail size={18} />
                 Email to upgrade
               </a>
             </div>
 
             {/* Agency */}
-            <div className="border border-zinc-200 rounded-2xl p-8 bg-zinc-50 flex flex-col hover:border-zinc-300 transition-colors">
-              <div className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-3">Agency</div>
-              <div className="text-4xl font-extrabold text-zinc-900 tracking-tight mb-2">Custom</div>
-              <p className="text-sm text-zinc-500 mb-8 font-medium">Need more than 10 accounts?</p>
+            <div className={`${acrylicCard} p-10 flex flex-col hover:-translate-y-1 transition-transform duration-300`}>
+              <div className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4 bg-slate-100 inline-block px-3 py-1 rounded-full self-start">Agency</div>
+              <div className="text-5xl font-extrabold text-slate-800 tracking-tight mb-2">Custom</div>
+              <p className="text-base text-slate-500 mb-8 font-medium">Need more than 10 accounts?</p>
 
-              <ul className="space-y-4 mb-8 flex-1">
+              <ul className="space-y-5 mb-10 flex-1">
                 {[
                   'Unlimited social accounts',
                   'Everything in Pro',
                   'Custom setup support',
                 ].map(f => (
-                  <li key={f} className="flex items-start gap-3 text-sm text-zinc-700 font-medium">
-                    <Check size={16} className="text-zinc-900 mt-0.5 flex-shrink-0" strokeWidth={2.5} />
+                  <li key={f} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
+                    <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check size={12} className="text-slate-600" strokeWidth={3} />
+                    </div>
                     {f}
                   </li>
                 ))}
               </ul>
 
               <a href="mailto:hello@post2post.app?subject=Agency Plan"
-                className="flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-bold text-zinc-900 bg-white rounded-lg border border-zinc-200 hover:bg-zinc-50 transition-all active:scale-[0.98]">
-                <Mail size={16} />
+                className={`flex items-center justify-center gap-2 px-5 py-3.5 text-base ${acrylicButton}`}>
+                <Mail size={18} />
                 Email us
               </a>
             </div>
@@ -288,47 +333,54 @@ export default function LandingPage() {
       </section>
 
       {/* ── FINAL CTA ── */}
-      <section className="py-32 bg-zinc-50 border-b border-zinc-200">
-        <div className="max-w-2xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-5xl font-extrabold text-zinc-900 tracking-tight mb-6">
-            Ready to get started?
-          </h2>
-          <p className="text-zinc-500 mb-10 text-lg font-medium">
-            Join {testerCount !== null ? testerCount : '...'} creators already in the beta.
-            {spotsLeft !== null && ` Only ${spotsLeft} spots left.`}
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/signup"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-bold text-white bg-zinc-900 rounded-lg hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-lg shadow-zinc-200/50">
-              Sign up free
-              <ArrowRight size={16} />
-            </Link>
+      <section className="py-32 relative z-10">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <div className={`${acrylicCard} p-16 md:p-24`}>
+            <h2 className="text-4xl md:text-6xl font-extrabold text-slate-800 tracking-tight mb-6">
+              Ready to get started?
+            </h2>
+            <p className="text-slate-500 mb-10 text-xl font-medium max-w-2xl mx-auto">
+              Join {testerCount !== null ? testerCount : '...'} creators already in the beta.
+              {spotsLeft !== null && ` Only ${spotsLeft} spots left.`}
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/signup"
+                className={`inline-flex items-center justify-center gap-2 px-10 py-5 text-lg ${primaryButton}`}>
+                Sign up for free
+                <ArrowRight size={20} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="bg-white py-12">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-zinc-500 font-medium">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Post 2 Post" className="w-6 h-6 rounded" />
-            <span className="font-bold text-zinc-900 tracking-tight">Post 2 Post</span>
-          </div>
-          <div className="flex gap-8">
-            <Link href="/privacy" className="hover:text-zinc-900 transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-zinc-900 transition-colors">Terms</Link>
-            <a href="mailto:hello@post2post.app" className="hover:text-zinc-900 transition-colors">Contact</a>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-zinc-50 border border-zinc-200 rounded-full px-3 py-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span className="text-xs font-bold text-zinc-700">All systems operational</span>
+      <footer className="relative z-10 pb-12 pt-8">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="bg-white/30 backdrop-blur-md border border-white/50 rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-slate-500 font-medium">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-300 to-teal-300 flex items-center justify-center">
+                <img src="/logo.png" alt="Logo" className="w-6 h-6 rounded-lg opacity-90 mix-blend-overlay" />
+              </div>
+              <span className="font-bold text-slate-800 tracking-tight text-base">Post 2 Post</span>
             </div>
+            <div className="flex gap-8">
+              <Link href="/privacy" className="hover:text-sky-600 transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-sky-600 transition-colors">Terms</Link>
+              <a href="mailto:hello@post2post.app" className="hover:text-sky-600 transition-colors">Contact</a>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-white/50 border border-white/60 rounded-full px-4 py-1.5 shadow-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.6)] animate-pulse"></span>
+                <span className="text-xs font-bold text-slate-700">All systems operational</span>
+              </div>
+            </div>
+            <p className="md:ml-auto">© 2026 Post 2 Post.</p>
           </div>
-          <p className="md:ml-auto">© 2026 Post 2 Post.</p>
         </div>
       </footer>
 
     </div>
   );
 }
+
