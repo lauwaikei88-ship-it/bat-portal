@@ -246,26 +246,44 @@ export default function Dashboard() {
         const ext = f.name.split('.').pop() || 'jpg';
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
 
-        const formData = new FormData();
-        formData.append('file', f);
-        formData.append('fileName', fileName);
-
-        let uploadRes;
+        // 1. Get signed URL from our server (bypasses RLS)
+        const presignRes = await fetch('/api/upload/presign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileName })
+        });
+        
+        let presignData;
         try {
-          uploadRes = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData
-          });
-        } catch (err: any) {
-          throw new Error(`Upload proxy network error: ${err.message}`);
+          presignData = await presignRes.json();
+        } catch (e) {
+          const text = await presignRes.text();
+          throw new Error(`Expected JSON but got HTML/text from presign (Status: ${presignRes.status}). Response preview: ${text.substring(0, 100)}`);
         }
 
-        const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) {
-          throw new Error(`Upload failed (${uploadRes.status}): ${uploadData.error || 'Unknown error'}`);
+        if (!presignRes.ok) {
+          throw new Error(presignData.error || 'Failed to get upload URL');
         }
 
-        publicUrls.push(uploadData.publicUrl);
+        // 2. Upload directly to Supabase using the signed URL
+        try {
+          const { error: uploadErr } = await supabase.storage
+            .from('media')
+            .uploadToSignedUrl(presignData.path, presignData.token, f);
+            
+          if (uploadErr) {
+            throw new Error(`Upload failed: ${uploadErr.message}`);
+          }
+        } catch (uploadException: any) {
+          throw new Error(`Supabase Storage Upload failed: ${uploadException.message}`);
+        }
+
+        // 3. Get the public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('media')
+          .getPublicUrl(presignData.path);
+          
+        publicUrls.push(publicUrl);
       }
 
       const mediaType = files[0].type.startsWith('video/') ? 'VIDEO' : 'IMAGE';

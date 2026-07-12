@@ -139,20 +139,33 @@ export default function SettingsPage() {
       const ext = file.name.split('.').pop() || 'jpg';
       const fileName = `avatar-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
 
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fileName', fileName);
-
-      const uploadRes = await fetch('/api/upload', {
+      const presignRes = await fetch('/api/upload/presign', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName }),
       });
 
-      if (!uploadRes.ok) {
-        throw new Error('Upload failed');
+      if (!presignRes.ok) {
+        throw new Error('Failed to get upload URL');
       }
 
-      const { publicUrl } = await uploadRes.json();
+      const presignData = await presignRes.json();
+      const supabase = (await import('@supabase/supabase-js')).createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+
+      const { error: uploadErr } = await supabase.storage
+        .from('media')
+        .uploadToSignedUrl(presignData.path, presignData.token, file);
+
+      if (uploadErr) {
+        throw new Error(`Upload failed: ${uploadErr.message}`);
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media')
+        .getPublicUrl(presignData.path);
 
       await fetch('/api/profile', {
         method: 'PATCH',
@@ -163,7 +176,7 @@ export default function SettingsPage() {
       setProfileUser(prev => prev ? { ...prev, avatar_url: publicUrl } : null);
     } catch (err: any) {
       console.error('Failed to upload avatar:', err);
-      alert('Failed to upload avatar');
+      alert('Failed to upload avatar: ' + err.message);
     }
     setUploadingAvatar(false);
   };

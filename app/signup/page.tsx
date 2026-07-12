@@ -44,7 +44,7 @@ export default function SignupPage() {
       setPassword('');
       setConfirmPassword('');
     } else {
-      router.push('/');
+      router.push('/dashboard');
       router.refresh();
     }
   };

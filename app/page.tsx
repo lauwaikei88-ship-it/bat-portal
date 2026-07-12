@@ -78,26 +78,26 @@ export default function LandingPage() {
 
           {/* Left copy */}
           <div className="flex-1 text-left relative z-10">
-            <h1 className="text-6xl md:text-8xl font-extrabold text-slate-800 leading-[1.05] tracking-tighter mb-6">
+            <h1 className="text-5xl md:text-6xl font-extrabold text-slate-800 leading-[1.05] tracking-tighter mb-4">
               Plan once,<br />
               <span className="text-sky-500">post anytime.</span>
             </h1>
 
-            <p className="text-xl text-slate-500 mb-8 max-w-lg leading-relaxed font-medium">
+            <p className="text-lg text-slate-500 mb-6 max-w-lg leading-relaxed font-medium">
               Schedule your content across multiple social accounts with a tool that feels as refreshing as breathing clear air.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-4 mb-10">
+            <div className="flex flex-row flex-wrap items-center gap-4 mb-8">
               <Link href="/signup"
-                className={`inline-flex items-center justify-center gap-2 px-8 py-4 text-base ${primaryButton}`}>
+                className={`inline-flex items-center justify-center gap-2 px-6 py-3 text-sm ${primaryButton}`}>
                 Get started free
-                <ArrowRight size={18} />
+                <ArrowRight size={16} />
               </Link>
               
               {/* Platforms row */}
-              <div className="flex items-center gap-4 bg-slate-50 rounded-2xl border border-slate-200 px-6 py-4">
-                <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Works with</span>
-                <div className="w-px h-4 bg-slate-300/50"></div>
+              <div className="flex items-center gap-3 bg-slate-50 rounded-2xl border border-slate-200 px-5 py-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Works with</span>
+                <div className="w-px h-3 bg-slate-300/50"></div>
                 <FbIcon />
                 <IgIcon />
               </div>
@@ -105,14 +105,14 @@ export default function LandingPage() {
           </div>
 
           {/* Right: Video Frame Mockup */}
-          <div className="flex-1 w-full max-w-lg mx-auto relative perspective-1000">
+          <div className="flex-1 w-full max-w-sm mx-auto relative perspective-1000">
             {/* Ambient glow behind mockup */}
             <div className="absolute inset-0 bg-slate-100 rounded-[3rem] blur-3xl opacity-50"></div>
             
-            <div className={`p-3 transform rotate-2 hover:rotate-0 transition-transform duration-700 ease-out ${acrylicCard}`}>
+            <div className={`p-2 transform rotate-2 hover:rotate-0 transition-transform duration-700 ease-out ${acrylicCard}`}>
               
               {/* Browser Top Bar */}
-              <div className="flex gap-2 pb-3 pl-3 pt-2">
+              <div className="flex gap-2 pb-2 pl-2 pt-2">
                 <div className="h-3 w-3 rounded-full bg-slate-200/80 shadow-sm border border-slate-100"></div>
                 <div className="h-3 w-3 rounded-full bg-slate-200/80 shadow-sm border border-slate-100"></div>
                 <div className="h-3 w-3 rounded-full bg-slate-200/80 shadow-sm border border-slate-100"></div>
