@@ -56,9 +56,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-40 px-6 py-4 bg-white/80 backdrop-blur-md border-b border-slate-100">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm">
-              <span className="text-white text-xl font-black">2</span>
-            </div>
+            <img src="/logo.png" alt="Logo" className="w-9 h-9 rounded-xl object-contain shadow-sm border border-slate-100" />
             <span className="font-extrabold text-slate-800 text-xl tracking-tight">Post 2 Post</span>
           </div>
           <div className="flex items-center gap-3">
@@ -101,9 +99,8 @@ export default function LandingPage() {
             <div className="flex items-center gap-6 bg-slate-50 rounded-2xl border border-slate-200 p-4 inline-flex">
               <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Works with</span>
               <div className="w-px h-4 bg-slate-300/50"></div>
-              <IgIcon />
               <FbIcon />
-              <XIcon />
+              <IgIcon />
             </div>
           </div>
 
@@ -295,10 +292,10 @@ export default function LandingPage() {
           </div>
           <div className="space-y-4">
             {[
-              { q: "What is Post 2 Post?", a: "Post 2 Post is a streamlined tool that allows you to easily schedule and cross-post content to multiple social media platforms simultaneously." },
-              { q: "Is the beta program free?", a: "Yes! While we are in beta, all core features are completely free for our early testers." },
-              { q: "Which platforms are supported?", a: "Currently, we support connecting Instagram, Facebook, and X (formerly Twitter). We'll be adding more platforms based on user feedback." },
-              { q: "Is there a limit on how many posts I can schedule?", a: "During the beta phase, you can schedule an unlimited number of posts for up to 3 connected social accounts." }
+              { q: "What is Post 2 Post?", a: "Post 2 Post is a lite social media manager tool that allows you to easily schedule and cross-post content, mainly focusing on Facebook and Instagram feed and story." },
+              { q: "Is the beta program free?", a: "We are a tester program now, open to 50 testers for now. When we hit the quota, we will upgrade to a new domain website and a better domain." },
+              { q: "Which platforms are supported?", a: "Currently, we mainly focus on Facebook and Instagram." },
+              { q: "Is there a limit on how many posts I can schedule?", a: "We give 5 posts a week that can be posted to either Facebook or Instagram." }
             ].map((faq, i) => (
               <div key={i} className={`${acrylicCard} p-6`}>
                 <h3 className="font-bold text-slate-800 text-lg mb-2">{faq.q}</h3>
@@ -336,21 +333,13 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="bg-slate-50 border border-slate-200 rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-slate-500 font-medium">
             <div className="flex items-center gap-3">
-              <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center shadow-sm">
-                <span className="text-white text-base font-black">2</span>
-              </div>
+              <img src="/logo.png" alt="Logo" className="w-7 h-7 rounded-lg object-contain shadow-sm border border-slate-100" />
               <span className="font-bold text-slate-800 tracking-tight text-base">Post 2 Post</span>
             </div>
             <div className="flex gap-8">
               <Link href="/privacy" className="hover:text-sky-600 transition-colors">Privacy</Link>
               <Link href="/terms" className="hover:text-sky-600 transition-colors">Terms</Link>
               <a href="mailto:airdriveteam@outlook.com" className="hover:text-sky-600 transition-colors">Contact</a>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">
-                <span className="w-2.5 h-2.5 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.6)] animate-pulse"></span>
-                <span className="text-xs font-bold text-slate-700">All systems operational</span>
-              </div>
             </div>
             <p className="md:ml-auto">© 2026 Post 2 Post.</p>
           </div>

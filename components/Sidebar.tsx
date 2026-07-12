@@ -30,9 +30,11 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="px-6 py-5 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm border border-slate-100">
-            <span className="text-white text-xl font-black">2</span>
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="Post 2 Post Logo" 
+            className="w-10 h-10 rounded-xl shadow-sm border border-slate-100 object-contain"
+          />
           <div>
             <p className="text-sm font-bold text-slate-800 tracking-tight">Post 2 Post</p>
             <p className="text-[10px] text-slate-400 font-mono">v1.0 · Free Plan</p>

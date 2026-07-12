@@ -35,9 +35,11 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-700">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-500/20">
-            <span className="text-white text-2xl font-black">2</span>
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="Post 2 Post Logo" 
+            className="w-12 h-12 rounded-xl shadow-lg shadow-blue-500/20 object-contain mb-4 bg-white"
+          />
           <h2 className="text-2xl font-bold text-white">Welcome back</h2>
           <p className="text-gray-400 mt-2 text-sm">Sign in to manage Post 2 Post</p>
         </div>
