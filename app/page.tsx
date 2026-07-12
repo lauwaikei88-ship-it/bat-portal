@@ -56,7 +56,9 @@ export default function LandingPage() {
       <header className="sticky top-0 z-40 px-6 py-4 bg-white/80 backdrop-blur-md border-b border-slate-100">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Logo" className="w-9 h-9 rounded-xl object-contain shadow-sm border border-slate-100" />
+            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm">
+              <span className="text-white text-xl font-black">2</span>
+            </div>
             <span className="font-extrabold text-slate-800 text-xl tracking-tight">Post 2 Post</span>
           </div>
           <div className="flex items-center gap-3">
@@ -73,8 +75,8 @@ export default function LandingPage() {
       </header>
 
       {/* ── HERO ── */}
-      <section className="relative z-10 overflow-hidden pt-8 pb-12 md:pt-12 md:pb-16">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
+      <section className="relative z-10 overflow-hidden pt-6 pb-10 md:pt-10 md:pb-12">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-8">
 
           {/* Left copy */}
           <div className="flex-1 text-left relative z-10">
@@ -138,9 +140,9 @@ export default function LandingPage() {
       </section>
 
       {/* ── HOW IT WORKS (Bento Grid) ── */}
-      <section className="py-12 md:py-16 relative z-10">
+      <section className="py-8 md:py-12 relative z-10">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-10 text-center">
+          <div className="mb-8 text-center">
             <h2 className="text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight mb-4">How it works</h2>
             <p className="text-slate-500 max-w-xl mx-auto text-lg font-medium">Three simple steps — from setup to your first scheduled post, wrapped in clear acrylic.</p>
           </div>
@@ -148,7 +150,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             
             {/* Box 1: Connect */}
-            <div className={`${acrylicCard} p-8 flex flex-col group hover:-translate-y-2 transition-all duration-500`}>
+            <div className={`${acrylicCard} p-6 flex flex-col group hover:-translate-y-2 transition-all duration-500`}>
               <div className="absolute -right-10 -top-10 w-32 h-32 bg-sky-200/30 rounded-full blur-2xl group-hover:bg-sky-300/40 transition-colors"></div>
               
               <div className="text-slate-800 font-extrabold text-2xl mb-2">1. Connect</div>
@@ -164,7 +166,7 @@ export default function LandingPage() {
             </div>
 
             {/* Box 2: Write */}
-            <div className={`${acrylicCard} p-8 flex flex-col group hover:-translate-y-2 transition-all duration-500 delay-100`}>
+            <div className={`${acrylicCard} p-6 flex flex-col group hover:-translate-y-2 transition-all duration-500 delay-100`}>
               <div className="absolute -right-10 -top-10 w-32 h-32 bg-teal-200/30 rounded-full blur-2xl group-hover:bg-teal-300/40 transition-colors"></div>
 
               <div className="text-slate-800 font-extrabold text-2xl mb-2">2. Write</div>
@@ -186,7 +188,7 @@ export default function LandingPage() {
             </div>
 
             {/* Box 3: Done */}
-            <div className={`${acrylicCard} p-8 flex flex-col group hover:-translate-y-2 transition-all duration-500 delay-200`}>
+            <div className={`${acrylicCard} p-6 flex flex-col group hover:-translate-y-2 transition-all duration-500 delay-200`}>
               <div className="absolute -right-10 -top-10 w-32 h-32 bg-emerald-200/30 rounded-full blur-2xl group-hover:bg-emerald-300/40 transition-colors"></div>
 
               <div className="text-slate-800 font-extrabold text-2xl mb-2">3. Done</div>
@@ -206,9 +208,9 @@ export default function LandingPage() {
       </section>
 
       {/* ── PRICING ── */}
-      <section className="py-12 md:py-16 relative z-10">
+      <section className="py-8 md:py-12 relative z-10">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-10 text-center">
+          <div className="mb-8 text-center">
             <h2 className="text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight mb-4">Simple pricing</h2>
             <p className="text-slate-500 text-lg font-medium">Start free. Upgrade when you need more power.</p>
           </div>
@@ -216,7 +218,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 gap-8 items-center max-w-4xl mx-auto mt-8">
 
             {/* Free */}
-            <div className={`${acrylicCard} p-10 flex flex-col hover:-translate-y-1 transition-transform duration-300`}>
+            <div className={`${acrylicCard} p-8 flex flex-col hover:-translate-y-1 transition-transform duration-300`}>
               <div className="text-xs font-bold uppercase tracking-widest text-sky-500 mb-4 bg-sky-50 inline-block px-3 py-1 rounded-full self-start">Beta Access</div>
               <div className="text-5xl font-extrabold text-slate-800 tracking-tight mb-2">Free</div>
               <p className="text-base text-slate-500 mb-8 font-medium">Try it out during the beta.</p>
@@ -244,7 +246,7 @@ export default function LandingPage() {
             </div>
 
             {/* Yearly — Pro Card */}
-            <div className={`${acrylicCard} p-10 flex flex-col relative md:scale-105 shadow-lg z-10 border-sky-100 bg-white !overflow-visible`}>
+            <div className={`${acrylicCard} p-8 flex flex-col relative md:scale-105 shadow-lg z-10 border-sky-100 bg-white !overflow-visible`}>
               {/* Highlight border top */}
               <div className="absolute top-0 left-0 w-full h-1 bg-sky-400 rounded-t-[2rem]"></div>
 
@@ -274,7 +276,7 @@ export default function LandingPage() {
                 ))}
               </ul>
 
-              <a href="mailto:hello@post2post.app?subject=Pro Plan"
+              <a href="mailto:airdriveteam@outlook.com?subject=Pro Plan"
                 className={`flex items-center justify-center gap-2 px-5 py-3.5 text-base relative z-10 ${primaryButton}`}>
                 <Mail size={18} />
                 Email to upgrade
@@ -285,10 +287,32 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── FAQ ── */}
+      <section className="py-8 md:py-12 relative z-10">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight mb-4">Frequently Asked Questions</h2>
+          </div>
+          <div className="space-y-4">
+            {[
+              { q: "What is Post 2 Post?", a: "Post 2 Post is a streamlined tool that allows you to easily schedule and cross-post content to multiple social media platforms simultaneously." },
+              { q: "Is the beta program free?", a: "Yes! While we are in beta, all core features are completely free for our early testers." },
+              { q: "Which platforms are supported?", a: "Currently, we support connecting Instagram, Facebook, and X (formerly Twitter). We'll be adding more platforms based on user feedback." },
+              { q: "Is there a limit on how many posts I can schedule?", a: "During the beta phase, you can schedule an unlimited number of posts for up to 3 connected social accounts." }
+            ].map((faq, i) => (
+              <div key={i} className={`${acrylicCard} p-6`}>
+                <h3 className="font-bold text-slate-800 text-lg mb-2">{faq.q}</h3>
+                <p className="text-slate-500 font-medium">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── FINAL CTA ── */}
-      <section className="py-12 md:py-16 relative z-10">
+      <section className="py-8 md:py-12 relative z-10">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className={`${acrylicCard} p-16 md:p-24`}>
+          <div className={`${acrylicCard} p-10 md:p-16`}>
             <h2 className="text-4xl md:text-6xl font-extrabold text-slate-800 tracking-tight mb-6">
               Ready to get started?
             </h2>
@@ -312,13 +336,15 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="bg-slate-50 border border-slate-200 rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-slate-500 font-medium">
             <div className="flex items-center gap-3">
-              <img src="/logo.png" alt="Logo" className="w-7 h-7 rounded-lg object-contain shadow-sm border border-slate-100" />
+              <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center shadow-sm">
+                <span className="text-white text-base font-black">2</span>
+              </div>
               <span className="font-bold text-slate-800 tracking-tight text-base">Post 2 Post</span>
             </div>
             <div className="flex gap-8">
               <Link href="/privacy" className="hover:text-sky-600 transition-colors">Privacy</Link>
               <Link href="/terms" className="hover:text-sky-600 transition-colors">Terms</Link>
-              <a href="mailto:hello@post2post.app" className="hover:text-sky-600 transition-colors">Contact</a>
+              <a href="mailto:airdriveteam@outlook.com" className="hover:text-sky-600 transition-colors">Contact</a>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">
