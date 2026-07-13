@@ -510,19 +510,28 @@ export default function Dashboard() {
           <div className="flex-1 flex flex-col gap-6 min-w-0">
             <div className="flex items-center justify-between mb-2">
               <h1 className="text-2xl font-bold text-slate-800">New Post</h1>
-              <button 
-                onClick={() => csvFileRef.current?.click()}
-                disabled={isUploadingCSV}
-                className="text-sm font-semibold bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50"
-              >
-                {isUploadingCSV ? (
-                  <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <FileSpreadsheet size={16} className="text-emerald-600" />
-                )}
-                {isUploadingCSV ? 'Uploading...' : 'Bulk Upload CSV'}
-              </button>
-              <input ref={csvFileRef} type="file" accept=".csv" className="hidden" onChange={handleCSVUpload} />
+              <div className="flex items-center gap-4">
+                <a 
+                  href="/bulk_post_template.csv" 
+                  download 
+                  className="text-xs font-medium text-slate-500 hover:text-slate-800 underline underline-offset-2 transition-colors"
+                >
+                  Download Template
+                </a>
+                <button 
+                  onClick={() => csvFileRef.current?.click()}
+                  disabled={isUploadingCSV}
+                  className="text-sm font-semibold bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50"
+                >
+                  {isUploadingCSV ? (
+                    <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <FileSpreadsheet size={16} className="text-emerald-600" />
+                  )}
+                  {isUploadingCSV ? 'Uploading...' : 'Bulk Upload CSV'}
+                </button>
+                <input ref={csvFileRef} type="file" accept=".csv" className="hidden" onChange={handleCSVUpload} />
+              </div>
             </div>
             
             {/* Caption */}
