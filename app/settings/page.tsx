@@ -273,8 +273,8 @@ export default function SettingsPage() {
                         </div>
                         <div className="flex flex-wrap gap-3">
                           <button
-                            onClick={fetchAccounts}
-                            className="inline-flex items-center gap-2 border border-gray-200 text-gray-600 hover:bg-gray-50 font-medium py-2 px-4 rounded-xl transition-all"
+                            onClick={refreshAccounts}
+                            className="inline-flex items-center gap-2 border border-gray-600 hover:border-gray-500 bg-gray-800 text-gray-200 hover:bg-gray-700 px-4 py-2 rounded-xl text-sm transition-colors"
                             title="Refresh accounts list"
                           >
                             <RefreshCw className="w-4 h-4" />
