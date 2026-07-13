@@ -77,14 +77,14 @@ export async function GET(req: NextRequest) {
       if (post.post_to_ig) {
         const igAccount = userAccounts.find((a: any) => a.platform === 'instagram');
         if (!igAccount) throw new Error('Instagram account not connected');
-        finalPostId = await postToInstagram(mediaUrls, post.caption, igAccount.access_token, igAccount.platform_account_id, formatType);
+        finalPostId = await postToInstagram(mediaUrls, post.caption, igAccount.access_token, igAccount.platform_account_id, formatType, post.media_type);
       }
       
       // Post to Facebook
       if (post.post_to_fb) {
         const fbAccount = userAccounts.find((a: any) => a.platform === 'facebook_page');
         if (!fbAccount) throw new Error('Facebook page not connected');
-        const fbPostId = await postToFacebookPage(mediaUrls, post.caption, fbAccount.access_token, fbAccount.platform_account_id, formatType);
+        const fbPostId = await postToFacebookPage(mediaUrls, post.caption, fbAccount.access_token, fbAccount.platform_account_id, formatType, post.media_type);
         if (!finalPostId) finalPostId = fbPostId;
       }
 

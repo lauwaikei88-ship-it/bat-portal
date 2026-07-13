@@ -9,7 +9,8 @@ export async function postToInstagram(
   caption: string, 
   accessToken: string, 
   igAccountId: string, 
-  formatType: 'FEED' | 'STORY' | 'CAROUSEL' = 'FEED'
+  formatType: 'FEED' | 'STORY' | 'CAROUSEL' = 'FEED',
+  mediaType?: 'IMAGE' | 'VIDEO'
 ): Promise<string> {
   
   if (mediaUrls.length === 0) throw new Error('No media URLs provided');
@@ -63,7 +64,7 @@ export async function postToInstagram(
     const childContainerIds = [];
     // Create children containers
     for (const url of mediaUrls) {
-      const isVideo = url.toLowerCase().includes('.mp4') || url.toLowerCase().includes('.mov');
+      const isVideo = url.toLowerCase().includes('.mp4') || url.toLowerCase().includes('.mov') || mediaType === 'VIDEO';
       const childId = await createContainer(url, true, false, isVideo);
       childContainerIds.push(childId);
     }
@@ -105,7 +106,7 @@ export async function postToInstagram(
 
   // 2. Single FEED or STORY Logic
   const url = mediaUrls[0];
-  const isVideo = url.toLowerCase().includes('.mp4') || url.toLowerCase().includes('.mov');
+  const isVideo = url.toLowerCase().includes('.mp4') || url.toLowerCase().includes('.mov') || mediaType === 'VIDEO';
   const isStory = formatType === 'STORY';
   
   const creationId = await createContainer(url, false, isStory, isVideo);
@@ -132,10 +133,11 @@ export async function postToFacebookPage(
   caption: string, 
   accessToken: string, 
   fbPageId: string,
-  formatType: 'FEED' | 'STORY' | 'CAROUSEL' = 'FEED'
+  formatType: 'FEED' | 'STORY' | 'CAROUSEL' = 'FEED',
+  mediaType?: 'IMAGE' | 'VIDEO'
 ): Promise<string> {
   const url = mediaUrls[0];
-  const isVideo = url.toLowerCase().includes('.mp4') || url.toLowerCase().includes('.mov');
+  const isVideo = url.toLowerCase().includes('.mp4') || url.toLowerCase().includes('.mov') || mediaType === 'VIDEO';
 
   if (formatType === 'CAROUSEL' && mediaUrls.length > 1) {
     const attachedMedia = [];
