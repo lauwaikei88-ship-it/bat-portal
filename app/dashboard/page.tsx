@@ -423,18 +423,22 @@ export default function Dashboard() {
                 <button
                   onClick={generateCaption}
                   disabled={isGeneratingCaption}
-                  className="text-[11px] font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                  className="text-[11px] font-semibold text-white flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all disabled:opacity-50 hover:shadow-md hover:opacity-90 active:scale-95"
+                  style={{
+                    background: "linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)",
+                    boxShadow: "0 2px 10px rgba(236, 72, 153, 0.2)"
+                  }}
                   title="Type a short prompt below and click to generate"
                 >
                   {isGeneratingCaption ? (
                     <span className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       Generating...
                     </span>
                   ) : (
                     <span className="flex items-center gap-1.5">
-                      <Sparkles size={13} />
-                      AI Auto-Caption
+                      <Sparkles size={13} className="text-white" />
+                      Click here to AI Generate
                     </span>
                   )}
                 </button>
