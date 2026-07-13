@@ -305,22 +305,56 @@ export default function Dashboard() {
                 continue; // skip invalid rows
               }
 
-              // Try strict ISO first (YYYY-MM-DD)
-              let parsedDate = new Date(`${dateStr}T${timeStr}`);
-              
-              // Fallback 1: Standard space separator (handles most formats)
-              if (isNaN(parsedDate.getTime())) {
-                parsedDate = new Date(`${dateStr} ${timeStr}`);
+              let finalDateStr = dateStr;
+              let finalTimeStr = timeStr;
+
+              // Extract time HH:MM, strip AM/PM and convert to 24h
+              const timeMatch = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+              if (timeMatch) {
+                let hours = parseInt(timeMatch[1], 10);
+                const mins = timeMatch[2];
+                const ampm = timeMatch[3]?.toUpperCase();
+                if (ampm === 'PM' && hours < 12) hours += 12;
+                if (ampm === 'AM' && hours === 12) hours = 0;
+                finalTimeStr = `${String(hours).padStart(2, '0')}:${mins}`;
               }
 
-              // Fallback 2: Replace hyphens with slashes (handles MM-DD-YYYY from Excel)
+              // Parse date
+              const dateParts = dateStr.split(/[-/]/);
+              if (dateParts.length === 3) {
+                let y = dateParts[0];
+                let m = dateParts[1];
+                let d = dateParts[2];
+
+                if (y.length !== 4) {
+                  y = dateParts[2].length === 2 ? `20${dateParts[2]}` : dateParts[2];
+                  if (parseInt(dateParts[0]) > 12) {
+                    d = dateParts[0];
+                    m = dateParts[1];
+                  } else if (parseInt(dateParts[1]) > 12) {
+                    m = dateParts[0];
+                    d = dateParts[1];
+                  } else {
+                    d = dateParts[0];
+                    m = dateParts[1];
+                  }
+                }
+                finalDateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+              }
+
+              let parsedDate = new Date(`${finalDateStr}T${finalTimeStr}`);
+
+              // Native fallback
               if (isNaN(parsedDate.getTime())) {
                 parsedDate = new Date(`${dateStr.replace(/-/g, '/')} ${timeStr}`);
               }
 
-              // Fallback 3: Replace slashes with hyphens
-              if (isNaN(parsedDate.getTime())) {
-                parsedDate = new Date(`${dateStr.replace(/\//g, '-')} ${timeStr}`);
+              // DD/MM/YYYY fallback
+              if (isNaN(parsedDate.getTime()) && dateParts.length === 3) {
+                  let y = dateParts[2].length === 2 ? `20${dateParts[2]}` : dateParts[2];
+                  let m = dateParts[1];
+                  let d = dateParts[0];
+                  parsedDate = new Date(`${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}T${finalTimeStr}`);
               }
 
               if (isNaN(parsedDate.getTime())) {
