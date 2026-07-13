@@ -33,6 +33,7 @@ export async function GET(request: Request) {
     }
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/login?error=Could_not_authenticate_user`);
+  // If no code was provided, it might be an implicit flow where the token is in the URL hash.
+  // We redirect to the requested page (next) so the Supabase browser client can parse the hash.
+  return NextResponse.redirect(`${origin}${next}`);
 }

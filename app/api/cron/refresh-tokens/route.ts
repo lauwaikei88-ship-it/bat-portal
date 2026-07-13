@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase-server';
+import { createServerSupabase } from '@/lib/supabase';
 
 /**
  * Cron: Refresh Meta long-lived tokens that are expiring within 10 days.
@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const supabase = createClient();
+  const supabase = createServerSupabase();
 
   // Get all social accounts whose tokens expire in the next 10 days
   const tenDaysFromNow = new Date();
