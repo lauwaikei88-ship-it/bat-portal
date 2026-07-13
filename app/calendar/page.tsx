@@ -244,27 +244,80 @@ export default function CalendarPage() {
                       {dayPosts.map((post, i) => {
                         const isIg = post.post_to_ig;
                         const isFb = post.post_to_fb;
-                        
-                        let bgColor = isIg && isFb ? 'bg-purple-50 border-purple-100' : isIg ? 'bg-pink-50 border-pink-100' : 'bg-blue-50 border-blue-100';
-                        let dotColor = isIg && isFb ? 'bg-purple-500' : isIg ? 'bg-pink-500' : 'bg-blue-500';
 
-                        if (post.status === 'published') {
-                          bgColor = 'bg-green-50 border-green-200';
-                          dotColor = 'bg-green-500';
-                        } else if (post.status === 'failed' || post.status === 'error') {
-                          bgColor = 'bg-red-50 border-red-200';
-                          dotColor = 'bg-red-500';
+                        let imgUrls: string[] = [];
+                        try {
+                          const parsed = JSON.parse(post.media_url);
+                          imgUrls = Array.isArray(parsed) ? parsed : [parsed];
+                        } catch {
+                          imgUrls = [post.media_url];
                         }
+                        const imgUrl = imgUrls[0];
                         
                         return (
-                          <div key={i} className={`p-2 rounded-lg border ${bgColor} flex flex-col gap-1`}>
-                            <div className="flex items-center gap-1.5">
-                              <div className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
-                              <span className="text-[9px] font-medium text-slate-600">{formatTime(post.scheduled_at)}</span>
-                            </div>
-                            <p className="text-[10px] text-slate-700 line-clamp-2 leading-tight">
-                              {post.caption}
-                            </p>
+                          <div key={i} className="flex flex-col w-full bg-slate-100 border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow relative" style={{ borderRadius: '4px' }}>
+                             {/* Image Container */}
+                             <div className="relative h-20 w-full bg-slate-200">
+                               {imgUrl ? (
+                                 // eslint-disable-next-line @next/next/no-img-element
+                                 <img src={imgUrl} alt="Thumbnail" className="w-full h-full object-cover" />
+                               ) : (
+                                 <div className="w-full h-full flex items-center justify-center text-slate-400">
+                                   <Search size={16} />
+                                 </div>
+                               )}
+                               
+                               {/* Platform Icon Bubble */}
+                               <div className="absolute -bottom-2 left-2 bg-white rounded-full p-0.5 shadow-sm z-10 flex items-center justify-center">
+                                 {isIg ? (
+                                   <div className="w-5 h-5 rounded-full flex items-center justify-center bg-pink-100">
+                                     <InstagramIcon />
+                                   </div>
+                                 ) : isFb ? (
+                                   <div className="w-5 h-5 rounded-full flex items-center justify-center bg-blue-100">
+                                     <FacebookIcon />
+                                   </div>
+                                 ) : (
+                                   <div className="w-5 h-5 rounded-full flex items-center justify-center bg-slate-800 text-white text-[8px]">
+                                     X
+                                   </div>
+                                 )}
+                               </div>
+                             </div>
+                             
+                             {/* Content */}
+                             <div className="p-2 pt-3 flex flex-col gap-0.5">
+                               <div className="flex justify-between items-center mt-1">
+                                 <span className="text-[11px] font-bold text-slate-800 truncate pr-1">
+                                    {isIg && isFb ? 'IG & FB' : isIg ? 'Instagram' : isFb ? 'Facebook' : 'Post'}
+                                 </span>
+                                 <span className="text-[10px] font-semibold text-slate-500 whitespace-nowrap">{formatTime(post.scheduled_at)}</span>
+                               </div>
+                               <p className="text-[10px] text-slate-500 line-clamp-1 leading-tight mb-1">
+                                 {post.caption || 'No caption'}
+                               </p>
+                             </div>
+                             
+                             {/* Status Bar */}
+                             <div className={`w-full py-1 text-center text-[10px] font-bold flex items-center justify-center gap-1 ${
+                               post.status === 'published' ? 'bg-[#e5f5eb] text-[#2ba064]' :
+                               post.status === 'failed' || post.status === 'error' ? 'bg-[#fee2e2] text-[#ef4444]' :
+                               'bg-[#fdf4e1] text-[#b47124]' // pending/scheduled
+                             }`}>
+                                {post.status === 'published' ? (
+                                  <>
+                                    <div className="w-3 h-3 rounded-full bg-[#2ba064] text-white flex items-center justify-center text-[8px]">✓</div> Published
+                                  </>
+                                ) : post.status === 'failed' || post.status === 'error' ? (
+                                  <>
+                                    <div className="w-3 h-3 rounded-full bg-[#ef4444] text-white flex items-center justify-center text-[8px]">✕</div> Failed
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="w-3 h-3 rounded-full bg-[#b47124] text-white flex items-center justify-center text-[8px]">▲</div> Pending
+                                  </>
+                                )}
+                             </div>
                           </div>
                         )
                       })}
