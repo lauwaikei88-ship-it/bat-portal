@@ -305,13 +305,22 @@ export default function Dashboard() {
                 continue; // skip invalid rows
               }
 
-              // Robust date parsing (handle slashes from Excel)
-              const cleanDateStr = dateStr.replace(/\//g, '-');
-              let parsedDate = new Date(`${cleanDateStr}T${timeStr}`);
+              // Try strict ISO first (YYYY-MM-DD)
+              let parsedDate = new Date(`${dateStr}T${timeStr}`);
               
-              // Fallback if ISO format fails (e.g. MM/DD/YYYY HH:mm)
+              // Fallback 1: Standard space separator (handles most formats)
               if (isNaN(parsedDate.getTime())) {
                 parsedDate = new Date(`${dateStr} ${timeStr}`);
+              }
+
+              // Fallback 2: Replace hyphens with slashes (handles MM-DD-YYYY from Excel)
+              if (isNaN(parsedDate.getTime())) {
+                parsedDate = new Date(`${dateStr.replace(/-/g, '/')} ${timeStr}`);
+              }
+
+              // Fallback 3: Replace slashes with hyphens
+              if (isNaN(parsedDate.getTime())) {
+                parsedDate = new Date(`${dateStr.replace(/\//g, '-')} ${timeStr}`);
               }
 
               if (isNaN(parsedDate.getTime())) {
