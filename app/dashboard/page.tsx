@@ -313,36 +313,57 @@ export default function Dashboard() {
       const mediaType = files[0].type.startsWith('video/') ? 'VIDEO' : 'IMAGE';
       const scheduledAt = new Date(`${date}T${time}`).toISOString();
 
-      const postToIg = selectedPlatforms.some(p => p.includes('ig_'));
-      const postToFb = selectedPlatforms.some(p => p.includes('fb_'));
-      let formatType = selectedPlatforms.some(p => p.includes('story')) ? 'STORY' : 'FEED';
-      if (files.length > 1 && !selectedPlatforms.some(p => p.includes('story'))) {
-        formatType = 'CAROUSEL';
-      }
-      
-      let res;
-      try {
-        res = await fetch('/api/posts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            social_account_id: activeAccount.id,
-            caption,
-            scheduled_at: scheduledAt,
-            media_url: JSON.stringify(publicUrls),
-            media_type: mediaType,
-            format_type: formatType,
-            post_to_ig: postToIg,
-            post_to_fb: postToFb
-          })
+      const hasIgFeed = selectedPlatforms.includes('ig_feed');
+      const hasIgStory = selectedPlatforms.includes('ig_story');
+      const hasFbPage = selectedPlatforms.includes('fb_page');
+
+      const payloads = [];
+
+      // Create a Feed or Carousel post if Facebook Page or Instagram Feed is selected
+      if (hasIgFeed || hasFbPage) {
+        const formatType = files.length > 1 ? 'CAROUSEL' : 'FEED';
+        payloads.push({
+          social_account_id: activeAccount.id,
+          caption,
+          scheduled_at: scheduledAt,
+          media_url: JSON.stringify(publicUrls),
+          media_type: mediaType,
+          format_type: formatType,
+          post_to_ig: hasIgFeed,
+          post_to_fb: hasFbPage
         });
-      } catch (err: any) {
-        throw new Error(`Posts API network error: ${err.message}`);
       }
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || data.error || `HTTP ${res.status}`);
+      // Create a separate Story post if Instagram Story is selected
+      if (hasIgStory) {
+        payloads.push({
+          social_account_id: activeAccount.id,
+          caption,
+          scheduled_at: scheduledAt,
+          media_url: JSON.stringify(publicUrls),
+          media_type: mediaType,
+          format_type: 'STORY',
+          post_to_ig: true,
+          post_to_fb: false
+        });
+      }
+
+      // Submit all required payloads
+      for (const payload of payloads) {
+        try {
+          const res = await fetch('/api/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.message || data.error || `HTTP ${res.status}`);
+          }
+        } catch (err: any) {
+          throw new Error(`Posts API network error: ${err.message}`);
+        }
       }
 
       alert("Post scheduled successfully!");
