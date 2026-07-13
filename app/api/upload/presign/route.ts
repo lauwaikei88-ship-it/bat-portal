@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase-server';
 
 export async function POST(req: NextRequest) {
   try {
@@ -7,6 +8,13 @@ export async function POST(req: NextRequest) {
 
     if (!fileName) {
       return NextResponse.json({ error: 'Missing fileName' }, { status: 400 });
+    }
+
+    const authClient = createClient();
+    const { data: { user }, error: authError } = await authClient.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const db = createServerSupabase();
