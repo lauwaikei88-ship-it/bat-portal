@@ -19,6 +19,7 @@ export async function GET(request: Request) {
     'pages_manage_posts',
     'instagram_basic',
     'instagram_content_publish',
+    'instagram_manage_insights',
   ].join(',');
 
   // Standard Facebook OAuth (no config_id — avoids Facebook Login for Business redirect URI restrictions)
