@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, SVGProps } from 'react';
-import { Upload, Trash2, Send, ImageIcon, Video, Crop } from 'lucide-react';
+import { Upload, Trash2, Send, ImageIcon, Video, Crop, Sparkles } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import { useAccounts } from '@/lib/account-context';
 import { MentionTextarea } from '@/components/MentionTextarea';
@@ -152,6 +152,7 @@ export default function Dashboard() {
   
   const [isDragging, setIsDragging] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
   
   const fileRef = useRef<HTMLInputElement>(null);
   const captionRef = useRef<HTMLTextAreaElement>(null);
@@ -241,6 +242,31 @@ export default function Dashboard() {
   const appendToCaption = (text: string) => {
     setCaption(prev => prev + text);
     captionRef.current?.focus();
+  };
+
+  const generateCaption = async () => {
+    if (!caption) {
+      alert("Please type a short prompt in the caption box first!");
+      return;
+    }
+    setIsGeneratingCaption(true);
+    try {
+      const res = await fetch('/api/generate-caption', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: caption })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCaption(data.caption);
+      } else {
+        alert(data.error);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Failed to generate caption');
+    }
+    setIsGeneratingCaption(false);
   };
 
   const handleSchedulePost = async () => {
@@ -390,9 +416,29 @@ export default function Dashboard() {
             
             {/* Caption */}
             <Card className="p-6">
-              <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-3">
-                Caption
-              </label>
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-widest">
+                  Caption
+                </label>
+                <button
+                  onClick={generateCaption}
+                  disabled={isGeneratingCaption}
+                  className="text-[11px] font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                  title="Type a short prompt below and click to generate"
+                >
+                  {isGeneratingCaption ? (
+                    <span className="flex items-center gap-1.5">
+                      <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                      Generating...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles size={13} />
+                      AI Auto-Caption
+                    </span>
+                  )}
+                </button>
+              </div>
               <MentionTextarea
                 ref={captionRef}
                 value={caption}
