@@ -3,6 +3,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { User, CreditCard, Link2, Shield, Plus, ExternalLink, Zap, LogOut, CheckCircle2, XCircle, AlertCircle, RefreshCw, Camera, Lock, Trash2, Save, Eye, EyeOff } from 'lucide-react';
+import { useAccounts } from '@/lib/account-context';
 import Link from 'next/link';
 
 type SocialAccount = {
@@ -59,9 +60,8 @@ function OAuthBanner({ onSuccess }: { onSuccess: () => void }) {
 }
 
 export default function SettingsPage() {
+  const { accounts, loading, refreshAccounts } = useAccounts();
   const [activeTab, setActiveTab] = useState<Tab>('accounts');
-  const [accounts, setAccounts] = useState<SocialAccount[]>([]);
-  const [loading, setLoading] = useState(true);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
   const [loadingDebug, setLoadingDebug] = useState(false);
 
@@ -81,29 +81,14 @@ export default function SettingsPage() {
   const [passwordMsg, setPasswordMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
-    fetchAccounts();
     fetchProfile();
   }, []);
 
-  const fetchAccounts = async () => {
-    setLoading(true);
-    try {
-      // Use the server-side API route to avoid browser client session hydration timing issues.
-      // The browser Supabase client may not have the auth cookie available on first mount,
-      // causing RLS to return empty even when the user is logged in.
-      const res = await fetch('/api/accounts');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      setAccounts(json.accounts ?? []);
-    } catch (e) {
-      console.error('[Settings] fetchAccounts error:', e);
-    }
-    setLoading(false);
-  };
+  // fetchAccounts is now handled by AccountContext
 
   const handleDisconnect = async (id: string) => {
     await fetch(`/api/accounts?id=${id}`, { method: 'DELETE' });
-    fetchAccounts();
+    refreshAccounts();
   };
 
   // ── Profile helpers ──
@@ -244,7 +229,7 @@ export default function SettingsPage() {
 
           {/* OAuth result banners — wrapped in Suspense because useSearchParams requires it */}
           <Suspense fallback={null}>
-            <OAuthBanner onSuccess={fetchAccounts} />
+            <OAuthBanner onSuccess={refreshAccounts} />
           </Suspense>
 
           <div className="mb-10">

@@ -34,9 +34,20 @@ export function AccountProvider({ children }: { children: ReactNode }) {
         setAccounts(typedData);
         
         // If we don't have an active account but we have accounts, set the first one as active
-        if (!activeAccount && typedData.length > 0) {
-          setActiveAccount(typedData[0]);
-        }
+        setActiveAccount(current => {
+          if (!current && typedData.length > 0) {
+            return typedData[0];
+          }
+          // If the currently active account was deleted, fallback to the first one available
+          if (current && typedData.length > 0 && !typedData.find(a => a.id === current.id)) {
+            return typedData[0];
+          }
+          // If no accounts are left, clear it
+          if (typedData.length === 0) {
+            return null;
+          }
+          return current;
+        });
       }
     } catch (e) {
       console.error('[AccountContext] fetchAccounts error:', e);
