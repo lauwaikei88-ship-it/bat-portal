@@ -291,63 +291,84 @@ export default function Dashboard() {
           const rows = results.data as any[];
           const payloads = [];
 
-          for (const row of rows) {
-            const dateStr = row['Date'];
-            const timeStr = row['Time'];
-            const caption = row['Caption'] || '';
-            const images = row['Image Links'] ? row['Image Links'].split(',').map((u: string) => u.trim()).filter(Boolean) : [];
-            const videos = row['Video Links'] ? row['Video Links'].split(',').map((u: string) => u.trim()).filter(Boolean) : [];
-            const platformStr = row['Platforms'] || '';
+            let rowIndex = 1; // 1-based, plus 1 for header = 2, but we'll just say "Row 1 of data"
+            for (const row of rows) {
+              const dateStr = row['Date'];
+              const timeStr = row['Time'];
+              const caption = row['Caption'] || '';
+              const images = row['Image Links'] ? String(row['Image Links']).split(',').map((u: string) => u.trim()).filter(Boolean) : [];
+              const videos = row['Video Links'] ? String(row['Video Links']).split(',').map((u: string) => u.trim()).filter(Boolean) : [];
+              const platformStr = String(row['Platforms'] || '');
 
-            if (!dateStr || !timeStr) continue; // skip invalid rows
+              if (!dateStr || !timeStr) {
+                rowIndex++;
+                continue; // skip invalid rows
+              }
 
-            const scheduledAt = new Date(`${dateStr}T${timeStr}`).toISOString();
-            const hasIgFeed = platformStr.includes('ig_feed');
-            const hasIgStory = platformStr.includes('ig_story');
-            const hasFbPage = platformStr.includes('fb_page');
+              // Robust date parsing (handle slashes from Excel)
+              const cleanDateStr = dateStr.replace(/\//g, '-');
+              let parsedDate = new Date(`${cleanDateStr}T${timeStr}`);
+              
+              // Fallback if ISO format fails (e.g. MM/DD/YYYY HH:mm)
+              if (isNaN(parsedDate.getTime())) {
+                parsedDate = new Date(`${dateStr} ${timeStr}`);
+              }
 
-            const mediaUrls = videos.length > 0 ? videos : images;
-            const mediaType = videos.length > 0 ? 'VIDEO' : 'IMAGE';
+              if (isNaN(parsedDate.getTime())) {
+                alert(`Row ${rowIndex} has an invalid Date or Time format. Please use YYYY-MM-DD and HH:MM.`);
+                setIsUploadingCSV(false);
+                if (csvFileRef.current) csvFileRef.current.value = '';
+                return;
+              }
 
-            if (hasIgFeed || hasFbPage) {
-              const formatType = mediaUrls.length > 1 ? 'CAROUSEL' : 'FEED';
-              payloads.push({
-                social_account_id: activeAccount.id,
-                caption,
-                scheduled_at: scheduledAt,
-                media_url: JSON.stringify(mediaUrls),
-                media_type: mediaType,
-                format_type: formatType,
-                post_to_ig: hasIgFeed,
-                post_to_fb: hasFbPage
-              });
+              const scheduledAt = parsedDate.toISOString();
+              const hasIgFeed = platformStr.includes('ig_feed');
+              const hasIgStory = platformStr.includes('ig_story');
+              const hasFbPage = platformStr.includes('fb_page');
+
+              const mediaUrls = videos.length > 0 ? videos : images;
+              const mediaType = videos.length > 0 ? 'VIDEO' : 'IMAGE';
+
+              if (hasIgFeed || hasFbPage) {
+                const formatType = mediaUrls.length > 1 ? 'CAROUSEL' : 'FEED';
+                payloads.push({
+                  social_account_id: activeAccount.id,
+                  caption,
+                  scheduled_at: scheduledAt,
+                  media_url: JSON.stringify(mediaUrls),
+                  media_type: mediaType,
+                  format_type: formatType,
+                  post_to_ig: hasIgFeed,
+                  post_to_fb: hasFbPage
+                });
+              }
+
+              if (hasIgStory) {
+                payloads.push({
+                  social_account_id: activeAccount.id,
+                  caption,
+                  scheduled_at: scheduledAt,
+                  media_url: JSON.stringify(mediaUrls),
+                  media_type: mediaType,
+                  format_type: 'STORY',
+                  post_to_ig: true,
+                  post_to_fb: false
+                });
+              }
+              rowIndex++;
             }
 
-            if (hasIgStory) {
-              payloads.push({
-                social_account_id: activeAccount.id,
-                caption,
-                scheduled_at: scheduledAt,
-                media_url: JSON.stringify(mediaUrls),
-                media_type: mediaType,
-                format_type: 'STORY',
-                post_to_ig: true,
-                post_to_fb: false
-              });
+            if (payloads.length === 0) {
+              alert('No valid posts found in CSV. Make sure you have Date, Time, and Platforms filled out.');
+              setIsUploadingCSV(false);
+              return;
             }
-          }
 
-          if (payloads.length === 0) {
-            alert('No valid posts found in CSV');
-            setIsUploadingCSV(false);
-            return;
-          }
-
-          const res = await fetch('/api/posts/bulk', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ posts: payloads })
-          });
+            const res = await fetch('/api/posts/bulk', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ posts: payloads })
+            });
           const data = await res.json();
           if (res.ok) {
             alert(`Successfully scheduled ${data.count} posts!`);
