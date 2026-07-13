@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect, SVGProps } from 'react';
-import { Upload, Trash2, Send, ImageIcon, Video, Crop, Sparkles } from 'lucide-react';
+import { Upload, Trash2, Send, ImageIcon, Video, Crop, Sparkles, FileSpreadsheet } from 'lucide-react';
+import Papa from 'papaparse';
 import Sidebar from '@/components/Sidebar';
 import { useAccounts } from '@/lib/account-context';
 import { MentionTextarea } from '@/components/MentionTextarea';
@@ -153,9 +154,11 @@ export default function Dashboard() {
   const [isDragging, setIsDragging] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
+  const [isUploadingCSV, setIsUploadingCSV] = useState(false);
   
   const fileRef = useRef<HTMLInputElement>(null);
   const captionRef = useRef<HTMLTextAreaElement>(null);
+  const csvFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Set default date/time to next minute on the same day
@@ -267,6 +270,99 @@ export default function Dashboard() {
       alert('Failed to generate caption');
     }
     setIsGeneratingCaption(false);
+  };
+
+  const handleCSVUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!activeAccount) {
+      alert("No active account selected. Connect an account first in settings.");
+      return;
+    }
+
+    setIsUploadingCSV(true);
+    
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        try {
+          const rows = results.data as any[];
+          const payloads = [];
+
+          for (const row of rows) {
+            const dateStr = row['Date'];
+            const timeStr = row['Time'];
+            const caption = row['Caption'] || '';
+            const images = row['Image Links'] ? row['Image Links'].split(',').map((u: string) => u.trim()).filter(Boolean) : [];
+            const videos = row['Video Links'] ? row['Video Links'].split(',').map((u: string) => u.trim()).filter(Boolean) : [];
+            const platformStr = row['Platforms'] || '';
+
+            if (!dateStr || !timeStr) continue; // skip invalid rows
+
+            const scheduledAt = new Date(`${dateStr}T${timeStr}`).toISOString();
+            const hasIgFeed = platformStr.includes('ig_feed');
+            const hasIgStory = platformStr.includes('ig_story');
+            const hasFbPage = platformStr.includes('fb_page');
+
+            const mediaUrls = videos.length > 0 ? videos : images;
+            const mediaType = videos.length > 0 ? 'VIDEO' : 'IMAGE';
+
+            if (hasIgFeed || hasFbPage) {
+              const formatType = mediaUrls.length > 1 ? 'CAROUSEL' : 'FEED';
+              payloads.push({
+                social_account_id: activeAccount.id,
+                caption,
+                scheduled_at: scheduledAt,
+                media_url: JSON.stringify(mediaUrls),
+                media_type: mediaType,
+                format_type: formatType,
+                post_to_ig: hasIgFeed,
+                post_to_fb: hasFbPage
+              });
+            }
+
+            if (hasIgStory) {
+              payloads.push({
+                social_account_id: activeAccount.id,
+                caption,
+                scheduled_at: scheduledAt,
+                media_url: JSON.stringify(mediaUrls),
+                media_type: mediaType,
+                format_type: 'STORY',
+                post_to_ig: true,
+                post_to_fb: false
+              });
+            }
+          }
+
+          if (payloads.length === 0) {
+            alert('No valid posts found in CSV');
+            setIsUploadingCSV(false);
+            return;
+          }
+
+          const res = await fetch('/api/posts/bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ posts: payloads })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            alert(`Successfully scheduled ${data.count} posts!`);
+          } else {
+            alert(data.message || data.error || 'Failed to bulk schedule');
+          }
+        } catch (err: any) {
+          console.error(err);
+          alert('Failed to parse and upload CSV');
+        } finally {
+          setIsUploadingCSV(false);
+          if (csvFileRef.current) csvFileRef.current.value = '';
+        }
+      }
+    });
   };
 
   const handleSchedulePost = async () => {
@@ -412,7 +508,22 @@ export default function Dashboard() {
           
           {/* Left — Composer */}
           <div className="flex-1 flex flex-col gap-6 min-w-0">
-            <h1 className="text-2xl font-bold text-slate-800 mb-2">New Post</h1>
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="text-2xl font-bold text-slate-800">New Post</h1>
+              <button 
+                onClick={() => csvFileRef.current?.click()}
+                disabled={isUploadingCSV}
+                className="text-sm font-semibold bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50"
+              >
+                {isUploadingCSV ? (
+                  <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <FileSpreadsheet size={16} className="text-emerald-600" />
+                )}
+                {isUploadingCSV ? 'Uploading...' : 'Bulk Upload CSV'}
+              </button>
+              <input ref={csvFileRef} type="file" accept=".csv" className="hidden" onChange={handleCSVUpload} />
+            </div>
             
             {/* Caption */}
             <Card className="p-6">
