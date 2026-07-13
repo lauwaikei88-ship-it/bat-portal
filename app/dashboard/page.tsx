@@ -316,8 +316,8 @@ export default function Dashboard() {
               let finalDateStr = dateStr;
               let finalTimeStr = timeStr;
 
-              // Extract time HH:MM, strip AM/PM and convert to 24h
-              const timeMatch = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+              // Extract time HH:MM, strip AM/PM, ignore seconds, and convert to 24h
+              const timeMatch = timeStr.match(/(\d+):(\d+)(?::\d+)?\s*(AM|PM)?/i);
               if (timeMatch) {
                 let hours = parseInt(timeMatch[1], 10);
                 const mins = timeMatch[2];
