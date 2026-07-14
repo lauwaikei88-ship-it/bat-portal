@@ -484,7 +484,7 @@ export default function CalendarPage() {
                                     <div className="relative h-20 w-full bg-slate-200">
                                       {thumbUrl ? (
                                         isVideo ? (
-                                          <video src={`${thumbUrl}#t=0.001`} className="w-full h-full object-cover" muted playsInline />
+                                          <video src={`${thumbUrl}#t=0.001`} className="w-full h-full object-cover" muted playsInline preload="metadata" />
                                         ) : (
                                           // eslint-disable-next-line @next/next/no-img-element
                                           <img
@@ -585,7 +585,7 @@ export default function CalendarPage() {
                     <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 relative border border-slate-200">
                       {thumbUrl ? (
                         isVideo ? (
-                          <video src={`${thumbUrl}#t=0.001`} className="w-full h-full object-cover" muted playsInline />
+                          <video src={`${thumbUrl}#t=0.001`} className="w-full h-full object-cover" muted playsInline preload="metadata" />
                         ) : (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
