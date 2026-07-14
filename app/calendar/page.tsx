@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
-import { Search, Bell, Clock, TrendingUp, BarChart2, Zap, Trash2 } from 'lucide-react';
+import { Search, Bell, Clock, TrendingUp, BarChart2, Zap, Trash2, Pencil, X, Save } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
@@ -46,13 +46,211 @@ interface Post {
   post_to_fb: boolean;
   format_type: string;
   status: 'scheduled' | 'published' | 'failed' | 'error';
+  media_type?: string;
 }
 
+/** Convert a Google Drive share URL to a proxy-safe thumbnail URL */
+function toThumbnailUrl(rawUrl: string): string {
+  if (rawUrl.includes('drive.google.com') || rawUrl.includes('drive.usercontent.google.com')) {
+    return `/api/media-proxy?url=${encodeURIComponent(rawUrl)}`;
+  }
+  return rawUrl;
+}
+
+/** Parse media_url JSON and return the first URL as a display thumbnail */
+function getFirstMediaUrl(mediaUrl: string): string {
+  try {
+    const parsed = JSON.parse(mediaUrl);
+    const urls: string[] = Array.isArray(parsed) ? parsed : [parsed];
+    return toThumbnailUrl(urls[0] || '');
+  } catch {
+    return toThumbnailUrl(mediaUrl || '');
+  }
+}
+
+function getAllMediaUrls(mediaUrl: string): string[] {
+  try {
+    const parsed = JSON.parse(mediaUrl);
+    const urls: string[] = Array.isArray(parsed) ? parsed : [parsed];
+    return urls;
+  } catch {
+    return [mediaUrl];
+  }
+}
+
+// ─── Edit Modal ────────────────────────────────────────────────────────────────
+function EditPostModal({ post, onClose, onSave }: {
+  post: Post;
+  onClose: () => void;
+  onSave: (updated: Post) => void;
+}) {
+  const rawUrls = getAllMediaUrls(post.media_url);
+
+  // Pre-fill date/time from scheduled_at
+  const scheduledDate = new Date(post.scheduled_at);
+  const localDateStr = scheduledDate.toLocaleDateString('en-CA'); // YYYY-MM-DD
+  const localTimeStr = scheduledDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); // HH:MM
+
+  const [caption, setCaption] = useState(post.caption || '');
+  const [date, setDate] = useState(localDateStr);
+  const [time, setTime] = useState(localTimeStr);
+  const [mediaLinks, setMediaLinks] = useState(rawUrls.join('\n'));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSave = async () => {
+    setError('');
+    setSaving(true);
+    try {
+      const newUrls = mediaLinks
+        .split('\n')
+        .map(u => u.trim())
+        .filter(Boolean);
+
+      if (newUrls.length === 0) {
+        setError('Please enter at least one media link.');
+        setSaving(false);
+        return;
+      }
+
+      const newScheduledAt = new Date(`${date}T${time}`).toISOString();
+
+      const res = await fetch(`/api/posts/${post.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          caption,
+          scheduled_at: newScheduledAt,
+          media_url: JSON.stringify(newUrls),
+          // Reset error status back to scheduled if they're fixing a failed post
+          status: (post.status === 'error' || post.status === 'failed') ? 'scheduled' : post.status,
+          error_reason: null,
+        }),
+      });
+
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.error || 'Failed to save');
+      }
+
+      const updated = await res.json();
+      onSave({ ...post, ...updated });
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)' }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div>
+            <h2 className="text-base font-bold text-slate-800">Edit Scheduled Post</h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {post.post_to_ig && post.post_to_fb ? 'Instagram & Facebook' : post.post_to_ig ? 'Instagram' : 'Facebook'}
+              {' · '}{post.format_type}
+            </p>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors p-1">
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-5 flex flex-col gap-4">
+          {/* Caption */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">Caption</label>
+            <textarea
+              value={caption}
+              onChange={e => setCaption(e.target.value)}
+              rows={4}
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition"
+              placeholder="Write your caption..."
+            />
+          </div>
+
+          {/* Date & Time */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">Date</label>
+              <input
+                type="date"
+                value={date}
+                onChange={e => setDate(e.target.value)}
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">Time</label>
+              <input
+                type="time"
+                value={time}
+                onChange={e => setTime(e.target.value)}
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition"
+              />
+            </div>
+          </div>
+
+          {/* Media Links */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">Media Links <span className="text-slate-300 normal-case font-normal">(one per line)</span></label>
+            <textarea
+              value={mediaLinks}
+              onChange={e => setMediaLinks(e.target.value)}
+              rows={3}
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 font-mono resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition"
+              placeholder="https://drive.google.com/file/d/..."
+            />
+            <p className="text-[11px] text-slate-400 mt-1">Google Drive links are supported. One URL per line for carousels.</p>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3">
+              {error}
+            </div>
+          )}
+
+          {/* Status note for failed posts */}
+          {(post.status === 'error' || post.status === 'failed') && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-xl px-4 py-3">
+              ⚠️ This post previously failed. Saving will reset it to <strong>Scheduled</strong> so it will be retried.
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <Save size={14} />
+            {saving ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function CalendarPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [analyticsData, setAnalyticsData] = useState<{reach: number, engagementRate: string} | null>(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(true);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
 
   useEffect(() => {
     async function fetchPosts() {
@@ -102,6 +300,11 @@ export default function CalendarPage() {
       console.error('Error deleting post:', err);
       alert('Failed to delete post: ' + err.message);
     }
+  };
+
+  const handlePostSaved = (updated: Post) => {
+    setPosts(prev => prev.map(p => p.id === updated.id ? updated : p));
+    setEditingPost(null);
   };
 
   // Filter for this week's posts
@@ -244,23 +447,25 @@ export default function CalendarPage() {
                       {dayPosts.map((post, i) => {
                         const isIg = post.post_to_ig;
                         const isFb = post.post_to_fb;
-
-                        let imgUrls: string[] = [];
-                        try {
-                          const parsed = JSON.parse(post.media_url);
-                          imgUrls = Array.isArray(parsed) ? parsed : [parsed];
-                        } catch {
-                          imgUrls = [post.media_url];
-                        }
-                        const imgUrl = imgUrls[0];
+                        const thumbUrl = getFirstMediaUrl(post.media_url);
                         
                         return (
-                          <div key={i} className="flex flex-col w-full bg-slate-100 border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow relative" style={{ borderRadius: '4px' }}>
+                          <div
+                            key={i}
+                            className="flex flex-col w-full bg-slate-100 border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow relative cursor-pointer"
+                            style={{ borderRadius: '4px' }}
+                            onClick={() => setEditingPost(post)}
+                          >
                              {/* Image Container */}
                              <div className="relative h-20 w-full bg-slate-200">
-                               {imgUrl ? (
+                               {thumbUrl ? (
                                  // eslint-disable-next-line @next/next/no-img-element
-                                 <img src={imgUrl} alt="Thumbnail" className="w-full h-full object-cover" />
+                                 <img
+                                   src={thumbUrl}
+                                   alt="Thumbnail"
+                                   className="w-full h-full object-cover"
+                                   onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                 />
                                ) : (
                                  <div className="w-full h-full flex items-center justify-center text-slate-400">
                                    <Search size={16} />
@@ -343,38 +548,39 @@ export default function CalendarPage() {
                  </div>
               )}
               {posts.map(post => {
-                let imgUrls: string[] = [];
-                try {
-                  const parsed = JSON.parse(post.media_url);
-                  imgUrls = Array.isArray(parsed) ? parsed : [parsed];
-                } catch {
-                  imgUrls = [post.media_url];
-                }
-                const imgUrl = imgUrls[0];
+                const thumbUrl = getFirstMediaUrl(post.media_url);
+                const allUrls = getAllMediaUrls(post.media_url);
+                const isVideo = post.media_type === 'VIDEO';
                 
                 return (
                   <div key={post.id} className="flex items-start gap-4 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
                     <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 relative border border-slate-200">
-                      {imgUrl ? (
-                        imgUrl.toLowerCase().includes('.mp4') || imgUrl.toLowerCase().includes('.mov') ? (
-                          <video src={`${imgUrl}#t=0.001`} className="w-full h-full object-cover" muted playsInline />
+                      {thumbUrl ? (
+                        isVideo ? (
+                          <video src={`${thumbUrl}#t=0.001`} className="w-full h-full object-cover" muted playsInline />
                         ) : (
-                          <img src={imgUrl} alt="Post preview" className="w-full h-full object-cover" />
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={thumbUrl}
+                            alt="Post preview"
+                            className="w-full h-full object-cover"
+                            onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
                         )
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-slate-300">
                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
                         </div>
                       )}
-                      {imgUrls.length > 1 && (
+                      {allUrls.length > 1 && (
                         <div className="absolute top-1 right-1 bg-black/60 backdrop-blur-sm text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">
-                          1/{imgUrls.length}
+                          1/{allUrls.length}
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0 pt-0.5">
                       <p className="text-sm font-medium text-slate-800 line-clamp-1 mb-2">{post.caption}</p>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 flex-wrap">
                         {post.status === 'published' && (
                           <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 uppercase tracking-wider">Published</span>
                         )}
@@ -400,12 +606,22 @@ export default function CalendarPage() {
                         <span className="text-[11px] text-slate-400 font-medium">
                           {formatDate(post.scheduled_at)} · {formatTime(post.scheduled_at)}
                         </span>
-                        <button 
-                          onClick={() => deletePost(post.id)}
-                          className="ml-auto text-slate-400 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <div className="ml-auto flex items-center gap-2">
+                          <button
+                            onClick={() => setEditingPost(post)}
+                            className="text-slate-400 hover:text-blue-500 transition-colors"
+                            title="Edit post"
+                          >
+                            <Pencil size={15} />
+                          </button>
+                          <button 
+                            onClick={() => deletePost(post.id)}
+                            className="text-slate-400 hover:text-red-500 transition-colors"
+                            title="Delete post"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -416,6 +632,15 @@ export default function CalendarPage() {
 
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {editingPost && (
+        <EditPostModal
+          post={editingPost}
+          onClose={() => setEditingPost(null)}
+          onSave={handlePostSaved}
+        />
+      )}
     </div>
   );
 }
