@@ -113,6 +113,28 @@ function EditPostModal({ post, onClose, onSave }: {
         return;
       }
 
+      // Mirror any Google Drive links just like during CSV upload
+      const mirrorUrl = async (url: string): Promise<string> => {
+        if (!url) return url;
+        const isDrive = url.includes('drive.google.com') || url.includes('drive.usercontent.google.com');
+        if (!isDrive) return url;
+        try {
+          const res = await fetch('/api/mirror-media', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url }),
+          });
+          const data = await res.json();
+          if (data.publicUrl) return data.publicUrl;
+          return url;
+        } catch (e) {
+          console.warn('mirror-media failed', e);
+          return url;
+        }
+      };
+
+      const finalUrls = await Promise.all(newUrls.map(mirrorUrl));
+
       const newScheduledAt = new Date(`${date}T${time}`).toISOString();
 
       const res = await fetch(`/api/posts/${post.id}`, {
@@ -121,7 +143,7 @@ function EditPostModal({ post, onClose, onSave }: {
         body: JSON.stringify({
           caption,
           scheduled_at: newScheduledAt,
-          media_url: JSON.stringify(newUrls),
+          media_url: JSON.stringify(finalUrls),
           // Reset error status back to scheduled if they're fixing a failed post
           status: (post.status === 'error' || post.status === 'failed') ? 'scheduled' : post.status,
           error_reason: null,

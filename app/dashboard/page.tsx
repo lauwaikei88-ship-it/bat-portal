@@ -296,16 +296,34 @@ export default function Dashboard() {
               const dateStr = row['Date'];
               const timeStr = row['Time'];
               const caption = row['Caption'] || '';
-              const convertDriveLink = (url: string) => {
-                const match = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-                if (match && match[1]) {
-                  return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+              // Mirror Google Drive (or any remote) links through our server,
+              // which re-uploads them to Supabase Storage so Instagram/Facebook
+              // get a fast, stable, public URL — not a Google Drive redirect.
+              const mirrorUrl = async (url: string): Promise<string> => {
+                if (!url) return url;
+                const isDrive = url.includes('drive.google.com') || url.includes('drive.usercontent.google.com');
+                if (!isDrive) return url; // Non-Drive URLs are passed through as-is
+                try {
+                  const res = await fetch('/api/mirror-media', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url }),
+                  });
+                  const data = await res.json();
+                  if (data.publicUrl) return data.publicUrl;
+                  console.warn('mirror-media returned no publicUrl:', data);
+                  return url; // fallback to original
+                } catch (e) {
+                  console.warn('mirror-media failed, using original URL:', e);
+                  return url;
                 }
-                return url;
               };
 
-              const images = row['Image Links'] ? String(row['Image Links']).split(',').map((u: string) => convertDriveLink(u.trim())).filter(Boolean) : [];
-              const videos = row['Video Links'] ? String(row['Video Links']).split(',').map((u: string) => convertDriveLink(u.trim())).filter(Boolean) : [];
+              const rawImages = row['Image Links'] ? String(row['Image Links']).split(',').map((u: string) => u.trim()).filter(Boolean) : [];
+              const rawVideos = row['Video Links'] ? String(row['Video Links']).split(',').map((u: string) => u.trim()).filter(Boolean) : [];
+
+              const images = await Promise.all(rawImages.map(mirrorUrl));
+              const videos = await Promise.all(rawVideos.map(mirrorUrl));
               const platformStr = String(row['Platforms'] || '');
 
               if (!dateStr || !timeStr) {
