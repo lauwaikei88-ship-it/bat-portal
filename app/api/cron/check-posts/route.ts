@@ -63,6 +63,16 @@ export async function GET(req: NextRequest) {
         mediaUrls = [mediaUrl];
       }
 
+      // Rewrite Google Drive (and other non-public) links through our media proxy
+      // so that Instagram/Facebook servers can directly download the file.
+      const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://bat-portal.vercel.app';
+      mediaUrls = mediaUrls.map((u) => {
+        if (u.includes('drive.google.com') || u.includes('drive.usercontent.google.com')) {
+          return `${appBaseUrl}/api/media-proxy?url=${encodeURIComponent(u)}`;
+        }
+        return u;
+      });
+
       // Fetch user's connected social accounts
       const { data: userAccounts } = await db.from('social_accounts').select('*').eq('user_id', post.user_id);
       
