@@ -471,28 +471,34 @@ export default function CalendarPage() {
                         const isFb = post.post_to_fb;
                         const thumbUrl = getFirstMediaUrl(post.media_url);
                         
-                        return (
-                          <div
-                            key={i}
-                            className="flex flex-col w-full bg-slate-100 border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow relative cursor-pointer"
-                            style={{ borderRadius: '4px' }}
-                            onClick={() => setEditingPost(post)}
-                          >
-                             {/* Image Container */}
-                             <div className="relative h-20 w-full bg-slate-200">
-                               {thumbUrl ? (
-                                 // eslint-disable-next-line @next/next/no-img-element
-                                 <img
-                                   src={thumbUrl}
-                                   alt="Thumbnail"
-                                   className="w-full h-full object-cover"
-                                   onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                                 />
-                               ) : (
-                                 <div className="w-full h-full flex items-center justify-center text-slate-400">
-                                   <Search size={16} />
-                                 </div>
-                               )}
+                               const isVideo = post.media_type === 'VIDEO';
+                               
+                               return (
+                                 <div
+                                   key={i}
+                                   className="flex flex-col w-full bg-slate-100 border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow relative cursor-pointer"
+                                   style={{ borderRadius: '4px' }}
+                                   onClick={() => setEditingPost(post)}
+                                 >
+                                    {/* Image Container */}
+                                    <div className="relative h-20 w-full bg-slate-200">
+                                      {thumbUrl ? (
+                                        isVideo ? (
+                                          <video src={`${thumbUrl}#t=0.001`} className="w-full h-full object-cover" muted playsInline />
+                                        ) : (
+                                          // eslint-disable-next-line @next/next/no-img-element
+                                          <img
+                                            src={thumbUrl}
+                                            alt="Thumbnail"
+                                            className="w-full h-full object-cover"
+                                            onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                          />
+                                        )
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-slate-400">
+                                          <Search size={16} />
+                                        </div>
+                                      )}
                                
                                {/* Platform Icon Bubble */}
                                <div className="absolute -bottom-2 left-2 bg-white rounded-full p-0.5 shadow-sm z-10 flex items-center justify-center">
