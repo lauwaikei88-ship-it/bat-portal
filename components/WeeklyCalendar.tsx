@@ -107,12 +107,31 @@ export default function WeeklyCalendar({ posts, onNewPost }: WeeklyCalendarProps
                         {post.caption || post.prompt || 'No content'}
                       </p>
                       
-                      {/* Optional Media Preview Thumbnail could go here */}
+                      {/* Media Preview Thumbnail */}
                       {(firstMediaUrl || post.prompt) && (
                          <div className="mt-2 h-24 w-full bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden border border-gray-100 relative">
                             {firstMediaUrl ? (
                               <>
-                                <img src={firstMediaUrl} className="object-cover w-full h-full hover:scale-105 transition-transform duration-300" />
+                                {post.media_type === 'VIDEO' ? (
+                                  <video
+                                    src={firstMediaUrl}
+                                    className="object-cover w-full h-full"
+                                    muted
+                                    playsInline
+                                    preload="metadata"
+                                  />
+                                ) : (
+                                  <img src={firstMediaUrl} className="object-cover w-full h-full hover:scale-105 transition-transform duration-300" />
+                                )}
+                                {post.media_type === 'VIDEO' && (
+                                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    <div className="bg-black/50 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center">
+                                      <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8 5v14l11-7z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                )}
                                 {imgUrls.length > 1 && (
                                   <div className="absolute top-1 right-1 bg-black/60 backdrop-blur-sm text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md pointer-events-none">
                                     1/{imgUrls.length}
