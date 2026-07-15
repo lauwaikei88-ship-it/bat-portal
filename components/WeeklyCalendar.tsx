@@ -112,18 +112,19 @@ export default function WeeklyCalendar({ posts, onNewPost }: WeeklyCalendarProps
                          <div className="mt-2 h-24 w-full bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden border border-gray-100 relative">
                             {firstMediaUrl ? (
                               <>
-                                {post.media_type === 'VIDEO' ? (
+                                {post.media_type?.toUpperCase() === 'VIDEO' ? (
                                   <video
-                                    src={firstMediaUrl}
+                                    src={`${firstMediaUrl}#t=0.001`}
                                     className="object-cover w-full h-full"
                                     muted
                                     playsInline
                                     preload="metadata"
+                                    crossOrigin="anonymous"
                                   />
                                 ) : (
                                   <img src={firstMediaUrl} className="object-cover w-full h-full hover:scale-105 transition-transform duration-300" />
                                 )}
-                                {post.media_type === 'VIDEO' && (
+                                {post.media_type?.toUpperCase() === 'VIDEO' && (
                                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                     <div className="bg-black/50 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center">
                                       <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">

@@ -11,6 +11,7 @@ const cspHeader = `
     script-src 'self' 'unsafe-eval' 'unsafe-inline';
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https:;
+    media-src 'self' blob: https://*.supabase.co https://*.supabase.in https:;
     font-src 'self' data:;
     connect-src 'self' https://*.supabase.co https://*.supabase.in;
     object-src 'none';
