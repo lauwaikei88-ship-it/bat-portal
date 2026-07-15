@@ -58,6 +58,9 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+  const isAdmin = ADMIN_EMAIL && user?.email === ADMIN_EMAIL;
+
   const isPublicRoute = 
     request.nextUrl.pathname === '/' ||
     request.nextUrl.pathname.startsWith('/tester-program') ||
@@ -75,10 +78,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup' || request.nextUrl.pathname === '/')) {
-    // If authenticated and trying to access login/signup/landing, redirect to dashboard
+  // Block non-admin users from /admin
+  if (user && request.nextUrl.pathname.startsWith('/admin') && !isAdmin) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
+    return NextResponse.redirect(url);
+  }
+
+  if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup' || request.nextUrl.pathname === '/')) {
+    // Admin users go to /admin, regular users go to /dashboard
+    const url = request.nextUrl.clone();
+    url.pathname = isAdmin ? '/admin' : '/dashboard';
+    return NextResponse.redirect(url);
+  }
+
+  // If admin lands on /dashboard, redirect them to /admin
+  if (isAdmin && request.nextUrl.pathname === '/dashboard') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/admin';
     return NextResponse.redirect(url);
   }
 

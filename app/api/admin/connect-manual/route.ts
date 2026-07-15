@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 
+const PLAN_LIMITS: Record<string, number> = { free: 3, pro: 10 };
+
 export async function POST(request: Request) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -14,6 +16,33 @@ export async function POST(request: Request) {
   if (!accessToken) {
     return NextResponse.json({ error: 'Access token is required' }, { status: 400 });
   }
+
+  // ── Plan-based account limit check ──────────────────────────
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('plan')
+    .eq('id', user.id)
+    .single();
+
+  const plan = profile?.plan ?? 'free';
+  const limit = PLAN_LIMITS[plan] ?? 3;
+
+  const { count: currentCount } = await supabase
+    .from('social_accounts')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id);
+
+  if ((currentCount ?? 0) >= limit) {
+    return NextResponse.json({
+      error: plan === 'free'
+        ? `Free plan allows up to ${limit} connected accounts. Upgrade to Pro for up to 10.`
+        : `Pro plan allows up to ${limit} connected accounts. Please remove an account first.`,
+      code: 'ACCOUNT_LIMIT_REACHED',
+      plan,
+      limit,
+    }, { status: 403 });
+  }
+  // ────────────────────────────────────────────────────────────
 
   try {
     const saved = [];
