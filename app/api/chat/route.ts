@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase-server';
 
 const SYSTEM_PROMPT = `You are Agnes, the Post 2 Post AI Assistant. Your job is to help the user brainstorm social media content and write image generation prompts. IMPORTANT: You do not have the ability to post to Instagram directly. If the user asks you to schedule or post something, tell them: 'I cannot post directly, but I can write the prompt for you! Once you are happy with it, you can copy it and paste it into the Calendar & Approvals tab to schedule it.' Keep your answers concise and friendly.`;
 
 export async function POST(req: Request) {
+  // Auth check — prevent unauthenticated API credit drain
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
     const { messages } = await req.json();
 

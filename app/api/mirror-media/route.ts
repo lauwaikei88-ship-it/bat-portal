@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase-server';
+
+const ALLOWED_HOSTS = [
+  'drive.google.com',
+  'drive.usercontent.google.com',
+  'lh3.googleusercontent.com',
+];
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-/**
- * POST /api/mirror-media
- * Body: { url: string }
- * 
- * Fetches a remote file (e.g. Google Drive) using a server-side request,
- * uploads it to Supabase Storage, and returns a permanent public URL.
- * This is called at CSV-upload time so Instagram/Facebook always get a
- * clean, fast, stable URL — not a Google Drive redirect.
- */
 export async function POST(req: NextRequest) {
+  // Auth check
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { url } = await req.json();
     if (!url) {
@@ -29,6 +33,16 @@ export async function POST(req: NextRequest) {
       fetchUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=download&confirm=t`;
     }
 
+    // Strict allowlist — block SSRF
+    try {
+      const parsed = new URL(fetchUrl);
+      if (!ALLOWED_HOSTS.includes(parsed.hostname)) {
+        return NextResponse.json({ error: 'URL not allowed' }, { status: 400 });
+      }
+    } catch {
+      return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
+    }
+
     // Fetch the actual file bytes
     const response = await fetch(fetchUrl, {
       headers: {
@@ -39,14 +53,14 @@ export async function POST(req: NextRequest) {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch media: HTTP ${response.status} from ${fetchUrl}`);
+      return NextResponse.json({ error: 'Failed to fetch media from source' }, { status: 502 });
     }
 
     const contentType = response.headers.get('content-type') || 'application/octet-stream';
     const buffer = await response.arrayBuffer();
 
     if (buffer.byteLength === 0) {
-      throw new Error('Fetched file is empty — Google Drive may have blocked the download.');
+      return NextResponse.json({ error: 'Fetched file is empty' }, { status: 502 });
     }
 
     // Determine extension from content-type
@@ -60,23 +74,20 @@ export async function POST(req: NextRequest) {
 
     const fileName = `csv-uploads/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-    const db = createServerSupabase();
-    const { data: uploadData, error: uploadError } = await db.storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
       .from('media')
-      .upload(fileName, buffer, {
-        contentType,
-        upsert: false,
-      });
+      .upload(fileName, buffer, { contentType, upsert: false });
 
     if (uploadError) {
-      throw new Error(`Supabase upload failed: ${uploadError.message}`);
+      console.error('mirror-media upload error:', uploadError.message);
+      return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
     }
 
-    const { data: publicData } = db.storage.from('media').getPublicUrl(uploadData.path);
+    const { data: publicData } = supabase.storage.from('media').getPublicUrl(uploadData.path);
 
     return NextResponse.json({ publicUrl: publicData.publicUrl, contentType });
   } catch (err: any) {
     console.error('mirror-media error:', err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'An internal error occurred' }, { status: 500 });
   }
 }
