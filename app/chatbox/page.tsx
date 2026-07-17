@@ -5,9 +5,8 @@ export default async function FriendWhatsappDashboard() {
   const supabase = createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
 
-  // If not logged in, or not the specific friend, redirect them to login or 404
-  if (error || !user || user.email !== 'demosam@gmail.com') {
-    // Keep it hidden by pretending it doesn't exist or just redirect to home
+  // If not logged in, redirect them to home
+  if (error || !user) {
     redirect('/'); 
   }
 
