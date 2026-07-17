@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { LayoutDashboard, Settings, LogOut, Send, Calendar } from 'lucide-react';
+import { LayoutDashboard, Settings, LogOut, Send, Calendar, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase-browser';
@@ -22,6 +22,7 @@ export default function Sidebar() {
   const navItems = [
     { id: "/dashboard", label: "Composer", icon: LayoutDashboard },
     { id: "/calendar", label: "Calendar", icon: Calendar },
+    { id: "/chatbox", label: "Chatbox (Testing)", icon: MessageSquare },
     { id: "/settings", label: "Settings", icon: Settings },
   ];
 
