@@ -95,8 +95,8 @@ export async function POST(request: Request) {
                   const aiResponse = completion.choices[0].message.content || "Sorry, I cannot respond right now.";
 
                   // 4. Send the response back to the user via Meta Graph API
-                  if (process.env.META_PAGE_ACCESS_TOKEN) {
-                    const metaUrl = `https://graph.facebook.com/v19.0/me/messages?access_token=${process.env.META_PAGE_ACCESS_TOKEN}`;
+                  if (process.env.META_ACCESS_TOKEN) {
+                    const metaUrl = `https://graph.facebook.com/v19.0/me/messages?access_token=${process.env.META_ACCESS_TOKEN}`;
                     
                     const metaRes = await fetch(metaUrl, {
                       method: 'POST',
@@ -127,7 +127,7 @@ export async function POST(request: Request) {
                         ]);
                     }
                   } else {
-                    console.warn('META_PAGE_ACCESS_TOKEN is not set. Could not send reply.');
+                    console.warn('META_ACCESS_TOKEN is not set. Could not send reply.');
                   }
                 } catch (aiError) {
                   console.error('Error communicating with OpenAI:', aiError);
