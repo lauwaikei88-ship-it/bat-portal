@@ -81,9 +81,9 @@ export async function POST(request: Request) {
               const systemPrompt = botSettings?.system_prompt || "You are a helpful assistant.";
 
               // 3. Get AI Response from OpenAI
-              if (process.env.OPENAI_API_KEY) {
+              if (process.env.AGNES_API_KEY) {
                 try {
-                  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+                  const openai = new OpenAI({ apiKey: process.env.AGNES_API_KEY });
                   const completion = await openai.chat.completions.create({
                     model: "gpt-4o-mini",
                     messages: [
@@ -133,7 +133,7 @@ export async function POST(request: Request) {
                   console.error('Error communicating with OpenAI:', aiError);
                 }
               } else {
-                console.warn('OPENAI_API_KEY is not set. Could not generate AI reply.');
+                console.warn('AGNES_API_KEY is not set. Could not generate AI reply.');
               }
             }
           }
