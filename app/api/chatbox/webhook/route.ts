@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 
-import OpenAI from 'openai';
-
 // This token should match the one you configure in your Meta App Dashboard for the Webhook
 const VERIFY_TOKEN = process.env.META_VERIFY_TOKEN || 'my_secret_verify_token';
 
@@ -80,19 +78,30 @@ export async function POST(request: Request) {
 
               const systemPrompt = botSettings?.system_prompt || "You are a helpful assistant.";
 
-              // 3. Get AI Response from OpenAI
+              // 3. Get AI Response from Agnes AI
               if (process.env.AGNES_API_KEY) {
                 try {
-                  const openai = new OpenAI({ apiKey: process.env.AGNES_API_KEY });
-                  const completion = await openai.chat.completions.create({
-                    model: "gpt-4o-mini",
-                    messages: [
-                      { role: "system", content: systemPrompt },
-                      { role: "user", content: msgBody }
-                    ],
+                  const agnesRes = await fetch('https://apihub.agnes-ai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${process.env.AGNES_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                      model: 'agnes-2.0-flash',
+                      messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: msgBody }
+                      ]
+                    })
                   });
 
-                  const aiResponse = completion.choices[0].message.content || "Sorry, I cannot respond right now.";
+                  const agnesData = await agnesRes.json();
+                  if (!agnesRes.ok) {
+                    throw new Error(agnesData.error?.message || 'Agnes AI error');
+                  }
+
+                  const aiResponse = agnesData.choices[0].message.content || "Sorry, I cannot respond right now.";
 
                   // 4. Send the response back to the user via Meta Graph API
                   if (process.env.META_ACCESS_TOKEN) {
