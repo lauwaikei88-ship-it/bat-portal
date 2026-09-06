@@ -56,21 +56,25 @@ export async function POST(req: NextRequest) {
   endOfWeek.setDate(endOfWeek.getDate() + 6);
   endOfWeek.setHours(23, 59, 59, 999);
 
-  const { error: countError, count } = await supabase
-    .from('posts')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
-    .gte('scheduled_at', startOfWeek.toISOString())
-    .lte('scheduled_at', endOfWeek.toISOString());
-  if (countError) {
-    return NextResponse.json({ error: countError.message }, { status: 500 });
-  }
+  const isPro = user.user_metadata?.plan === 'pro' || user.user_metadata?.unlimited_posting === true;
 
-  if (count && count >= 5) {
-    return NextResponse.json({ 
-      error: 'UPGRADE_REQUIRED', 
-      message: 'You have reached your limit of 5 posts per week. Upgrade to Pro for unlimited posts.' 
-    }, { status: 403 });
+  if (!isPro) {
+    const { error: countError, count } = await supabase
+      .from('posts')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gte('scheduled_at', startOfWeek.toISOString())
+      .lte('scheduled_at', endOfWeek.toISOString());
+    if (countError) {
+      return NextResponse.json({ error: countError.message }, { status: 500 });
+    }
+
+    if (count && count >= 5) {
+      return NextResponse.json({ 
+        error: 'UPGRADE_REQUIRED', 
+        message: 'You have reached your limit of 5 posts per week. Upgrade to Pro for unlimited posts.' 
+      }, { status: 403 });
+    }
   }
 
   const { data: insertData, error } = await supabase

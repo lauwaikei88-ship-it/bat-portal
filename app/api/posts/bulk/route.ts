@@ -27,25 +27,29 @@ export async function POST(req: NextRequest) {
   endOfWeek.setDate(endOfWeek.getDate() + 6);
   endOfWeek.setHours(23, 59, 59, 999);
 
-  const { error: countError, count } = await supabase
-    .from('posts')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
-    .gte('scheduled_at', startOfWeek.toISOString())
-    .lte('scheduled_at', endOfWeek.toISOString());
+  const isPro = user.user_metadata?.plan === 'pro' || user.user_metadata?.unlimited_posting === true;
 
-  if (countError) {
-    return NextResponse.json({ error: countError.message }, { status: 500 });
-  }
+  if (!isPro) {
+    const { error: countError, count } = await supabase
+      .from('posts')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gte('scheduled_at', startOfWeek.toISOString())
+      .lte('scheduled_at', endOfWeek.toISOString());
 
-  const currentCount = count || 0;
-  
-  // Enforce 5 posts per week limit
-  if (currentCount + posts.length > 5) {
-    return NextResponse.json({ 
-      error: 'UPGRADE_REQUIRED', 
-      message: `You are trying to schedule ${posts.length} posts, but you only have ${5 - currentCount} remaining this week. Upgrade to Pro for unlimited posts.` 
-    }, { status: 403 });
+    if (countError) {
+      return NextResponse.json({ error: countError.message }, { status: 500 });
+    }
+
+    const currentCount = count || 0;
+    
+    // Enforce 5 posts per week limit
+    if (currentCount + posts.length > 5) {
+      return NextResponse.json({ 
+        error: 'UPGRADE_REQUIRED', 
+        message: `You are trying to schedule ${posts.length} posts, but you only have ${5 - currentCount} remaining this week. Upgrade to Pro for unlimited posts.` 
+      }, { status: 403 });
+    }
   }
 
   const rowsToInsert = posts.map(post => {

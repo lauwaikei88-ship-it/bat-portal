@@ -274,6 +274,23 @@ export default function CalendarPage() {
   const [loadingAnalytics, setLoadingAnalytics] = useState(true);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
 
+  const [profile, setProfile] = useState<{ plan?: string; unlimited_posting?: boolean } | null>(null);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const res = await fetch('/api/profile');
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(data);
+        }
+      } catch (e) {
+        console.error("Failed to load profile", e);
+      }
+    }
+    fetchProfile();
+  }, []);
+
   useEffect(() => {
     async function fetchPosts() {
       try {
@@ -386,7 +403,9 @@ export default function CalendarPage() {
                 <p className="text-xs text-slate-400 font-medium mb-1">Scheduled This Week</p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-bold text-slate-800">{thisWeekPosts.length}</span>
-                  <span className="text-xs text-slate-400">of 5 free posts</span>
+                  <span className="text-xs text-slate-400">
+                    {profile?.plan === 'pro' || profile?.unlimited_posting ? 'posts (Unlimited Pro)' : 'of 5 free posts'}
+                  </span>
                 </div>
               </div>
             </Card>
@@ -422,25 +441,37 @@ export default function CalendarPage() {
             </Card>
           </div>
 
-          {/* Upgrade Banner */}
-          <div className="bg-[#eaf1ff] border border-blue-200/60 rounded-2xl p-6 mb-6 flex items-center gap-6 shadow-sm">
-            <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
-              <Zap size={20} />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-slate-800 mb-2">{thisWeekPosts.length} of 5 free posts used this week</h3>
-              <div className="w-full h-1.5 bg-blue-200/50 rounded-full overflow-hidden mb-2">
-                <div 
-                  className="h-full bg-blue-500 rounded-full" 
-                  style={{ width: `${Math.min((thisWeekPosts.length / 5) * 100, 100)}%` }} 
-                />
+          {/* Upgrade Banner or Pro Status */}
+          {profile?.plan === 'pro' || profile?.unlimited_posting ? (
+            <div className="bg-emerald-50 border border-emerald-200/60 rounded-2xl p-6 mb-6 flex items-center gap-6 shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 font-bold text-lg">
+                ★
               </div>
-              <p className="text-xs text-slate-500">Upgrade for unlimited posts, advanced analytics & more.</p>
+              <div className="flex-1">
+                <h3 className="font-semibold text-emerald-900 mb-1">Pro Account Active</h3>
+                <p className="text-xs text-emerald-700">Unlimited posting is enabled for your account ({profile?.plan?.toUpperCase() || 'PRO'}). Schedule as many posts as you need!</p>
+              </div>
             </div>
-            <Link href="/tester-program" className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-colors text-sm text-center">
-              Upgrade to Pro
-            </Link>
-          </div>
+          ) : (
+            <div className="bg-[#eaf1ff] border border-blue-200/60 rounded-2xl p-6 mb-6 flex items-center gap-6 shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+                <Zap size={20} />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-slate-800 mb-2">{thisWeekPosts.length} of 5 free posts used this week</h3>
+                <div className="w-full h-1.5 bg-blue-200/50 rounded-full overflow-hidden mb-2">
+                  <div 
+                    className="h-full bg-blue-500 rounded-full" 
+                    style={{ width: `${Math.min((thisWeekPosts.length / 5) * 100, 100)}%` }} 
+                  />
+                </div>
+                <p className="text-xs text-slate-500">Upgrade for unlimited posts, advanced analytics & more.</p>
+              </div>
+              <Link href="/tester-program" className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-colors text-sm text-center">
+                Upgrade to Pro
+              </Link>
+            </div>
+          )}
 
           {/* Weekly Calendar View */}
           <Card className="p-6 mb-6">

@@ -9,11 +9,16 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const plan = user.user_metadata?.plan ?? 'free';
+  const unlimited_posting = user.user_metadata?.unlimited_posting ?? (plan === 'pro');
+
   return NextResponse.json({
     id: user.id,
     email: user.email ?? '',
     display_name: (user.user_metadata?.display_name as string) ?? '',
     avatar_url: (user.user_metadata?.avatar_url as string) ?? '',
+    plan,
+    unlimited_posting,
   });
 }
 
